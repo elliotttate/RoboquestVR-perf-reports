@@ -723,7 +723,36 @@ th:first-child,td:first-child{text-align:left}td{padding:8px 10px;text-align:rig
  </div>
 </article></div>
 </main>
-<footer class="footer"><b>METHODOLOGY //</b> Fixed seed and camera, enemy AI disabled, synthetic HMD pose, locked pixel density, and a six-second continuously clear cinematic/loading barrier before capture. Insights and Perfetto ran on a clean pass; RenderDoc used Meta’s Quest replay path. Raw source files, exact markers, checksums and complete captures are linked above. History: 3 run(s), 2026-07-19 → 2026-07-20.</footer>
+<footer class="footer">
+<section id="main-settings-audit" class="card" style="text-align:left;color:var(--ink);border-color:var(--cyan);margin:0 0 24px">
+<h2 style="margin-top:0">Current <code>main_ue5</code> settings audit</h2>
+<p>Audited 2026-07-20 against <a href="https://github.com/Flat2VRStudios/RoboquestVR/commit/fe4aaa6bcd1200ed7327c76a911ac5ed1e671099"><code>origin/main_ue5@fe4aaa6b</code></a>. “Capture” means the effective Quest runtime values preserved in the campaign logs and GPU captures; “current main” means the current repository’s Quest config, C++ defaults, and Blueprint-setting history. This is a source/config comparison, not a fresh runtime capture of <code>fe4aaa6b</code>.</p>
+<div class="callout bad"><b>Verification result: not all settings match current main.</b> Core XR and mobile-rendering controls match, but six benchmark-affecting settings differ and three are only policy/enablement matches. The rows below are the authoritative qualification for this report.</div>
+<div class="scroll"><table class="wide matrix">
+<tr><th>setting / CVar</th><th>captured run</th><th>current <code>main_ue5</code></th><th>verdict</th></tr>
+<tr><td>XR backend</td><td><code>XrApi=NativeOpenXR</code></td><td><code>XrApi=NativeOpenXR</code></td><td><span class="flag good">MATCH</span></td></tr>
+<tr><td>Anti-aliasing / MSAA</td><td><code>r.AntiAliasingMethod=3</code>; <code>r.MSAACount=2</code>; 2× eye surface measured</td><td>2× Quest MSAA from commit <code>9eec8ed4</code>, which is in current-main ancestry</td><td><span class="flag good">MATCH</span></td></tr>
+<tr><td>VRS master</td><td><code>r.VRS.Enable=1</code></td><td><code>r.VRS.Enable=1</code></td><td><span class="flag good">MATCH</span></td></tr>
+<tr><td>OpenXR foveation</td><td><code>xr.OpenXRFBFoveationLevel=3</code>; <code>xr.OpenXRFBFoveationDynamic=1</code> after quality apply</td><td>Same quality-to-level runtime policy; capture-only startup pins are absent</td><td><span class="flag warn">POLICY MATCH</span></td></tr>
+<tr><td>Mobile renderer</td><td><code>vr.MobileMultiView=1</code>; <code>r.Mobile.SupportGPUScene=1</code>; <code>r.MobileHDR=0</code></td><td>Same three values</td><td><span class="flag good">MATCH</span></td></tr>
+<tr><td>Eye-buffer sharpening</td><td><code>rq.EyeBufferSharpen=2</code></td><td><code>rq.EyeBufferSharpen=2</code></td><td><span class="flag good">MATCH</span></td></tr>
+<tr><td>Tile orchestrator</td><td><code>rq.TileOrchestrator=1</code></td><td>C++ default <code>1</code></td><td><span class="flag good">MATCH</span></td></tr>
+<tr><td>Tile proxies / distance ring</td><td>Proxies observed live; FAR enter/exit <code>6500/5500 cm</code></td><td>Proxy registry and <code>6500/5500 cm</code> remain, but FAR/RAND snapshot implementation differs from capture commit</td><td><span class="flag warn">ENABLEMENT MATCH</span></td></tr>
+<tr><td>Tile force override</td><td><code>rq.TileOrchestrator.Force=0</code></td><td>Quest device-profile override <code>0</code></td><td><span class="flag good">MATCH</span></td></tr>
+<tr><td>Manual ISM batching</td><td><code>rq.ISMBatching=0</code> forced by campaign</td><td>C++ default <code>0</code></td><td><span class="flag good">MATCH</span></td></tr>
+<tr><td>Auto-instance split</td><td><code>rq.AutoInstanceSplit=0</code></td><td>C++ default <code>0</code></td><td><span class="flag good">MATCH</span></td></tr>
+<tr><td>Tile BFS / hidden-state graph</td><td><code>rq.TileOrchestrator.BFS=0</code></td><td>C++ and settings default <code>1</code>; no Quest override</td><td><span class="flag hot">DIFFERENT</span></td></tr>
+<tr><td>Pixel density / eye target</td><td><code>HMDRenderTarget=100%</code> at 1680×1760; bounds <code>0.65–0.95</code></td><td>Quest base density <code>0.8</code>; bounds <code>0.7–1.0</code>; no 100% campaign pin</td><td><span class="flag hot">DIFFERENT</span></td></tr>
+<tr><td>Texture streaming</td><td><code>r.Streaming.PoolSize=1536</code>; <code>r.Streaming.MipBias=0.5</code></td><td><code>2048</code>; <code>0.3</code></td><td><span class="flag hot">DIFFERENT</span></td></tr>
+<tr><td>Shadow distance</td><td><code>r.Shadow.DistanceScale=0.4</code></td><td>No Quest override; engine baseline remains <code>1.0</code></td><td><span class="flag hot">DIFFERENT</span></td></tr>
+<tr><td>Application SpaceWarp</td><td><code>vr.SupportMobileSpaceWarp=1</code>; runtime <code>r.Mobile.Oculus.SpaceWarp.Enable=0</code> pinned</td><td>Support is <code>1</code>; runtime enable is not pinned by current config</td><td><span class="flag warn">SUPPORT MATCH</span></td></tr>
+<tr><td>RHI thread</td><td><code>r.RHIThread.Enable=1</code> explicitly recovered after startup</td><td>No project-level pin or recovery pass</td><td><span class="flag hot">DIFFERENT</span></td></tr>
+<tr><td>PSO startup</td><td><code>r.ShaderPipelineCache.Enabled=1</code>; <code>StartupMode=1</code></td><td><code>Enabled=1</code>; <code>StartupMode=0</code></td><td><span class="flag hot">DIFFERENT</span></td></tr>
+</table></div>
+<p class="small">A fully matched claim requires either a new capture built from <code>fe4aaa6b</code> or porting the six differing capture overrides into current main and rebuilding. Runtime-only values should then be emitted into the next campaign manifest so future reports can verify them mechanically.</p>
+</section>
+<p><b>METHODOLOGY //</b> Fixed seed and camera, enemy AI disabled, synthetic HMD pose, locked pixel density, and a six-second continuously clear cinematic/loading barrier before capture. Insights and Perfetto ran on a clean pass; RenderDoc used Meta’s Quest replay path. Raw source files, exact markers, checksums and complete captures are linked above. History: 3 run(s), 2026-07-19 → 2026-07-20.</p>
+</footer>
 </div>
 <div class="tip" id="tip"></div>
 <script>
