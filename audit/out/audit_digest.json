@@ -1,0 +1,45 @@
+{
+  "artifact_index_schema": 2,
+  "artifact_count": 120,
+  "artifact_bytes": 9286595959,
+  "extensions": {
+    ".gz": 2,
+    ".html": 1,
+    ".json": 6,
+    ".png": 48,
+    ".rdc": 24,
+    ".txt": 24,
+    ".zip": 15
+  },
+  "size_mismatches": 0,
+  "sha256_mismatches": 0,
+  "normal_levels": 12,
+  "normal_spots": 24,
+  "normal_gpu_stage_coverage": "22/24",
+  "combat_levels": 12,
+  "combat_raw_trace_links": 12,
+  "combat_raw_trace_links_non_200": 12,
+  "note": "process_pct is the sum of only the 20 highest thread-name groups in the bundled Perfetto query",
+  "combat_vrapi_duplicate_timestamp_levels": [
+    "City",
+    "Energy_Electrical",
+    "Fields",
+    "Mines",
+    "Purification_Water_0"
+  ],
+  "combat_vrapi_note": "City, Energy_Electrical, and Mines contain extensive same-second rows from distinct SF branches; report FPS/GPU means average all rows",
+  "combat_exact_duplicate_event_levels": [
+    "Canyon",
+    "City",
+    "Energy_Electrical",
+    "Fields",
+    "Mines",
+    "Moon",
+    "Nasa",
+    "Oasis",
+    "Purification_Water_0",
+    "Purification_Water_1",
+    "Road_1"
+  ],
+  "combat_event_note": "exact duplicate event rows are present in 11/12 levels; Purification_Water_0 duplicates every embedded kill row"
+}

@@ -1,0 +1,169 @@
+level,thread_group,timer,avg_ms_per_call,inclusive_ms_per_frame,median_ms_per_call,max_ms_per_call,calls_per_frame
+BuggedCity,GameThread,FEngineLoop::Tick (total frame),15.99,15.99,15.42,289.5,1.0
+BuggedCity,GameThread,WaitFrame (pacing),3.64,3.64,3.38,82.3,1.0
+BuggedCity,GameThread,UWorld tick,8.86,8.86,9.11,88.4,1.0
+BuggedCity,GameThread,Component ticks,0.03,4.3,0.0,22.7,142.1
+BuggedCity,GameThread,Skinned mesh (animation),0.06,0.86,0.0,9.1,14.4
+BuggedCity,GameThread,Blueprint ReceiveTick,0.01,0.72,0.0,2.4,49.3
+BuggedCity,GameThread,Widget updates,,,,,
+BuggedCity,GameThread,Slate prepass,,,,,
+BuggedCity,RenderThread,InitViews (visibility),0.52,2.9,0.0,25.3,5.6
+BuggedCity,RenderThread,Primitive scene infos,0.7,2.1,0.01,18.4,3.0
+BuggedCity,RenderThread,MobileBasePass,0.9,1.81,0.59,56.1,2.0
+BuggedCity,RenderThread,Slate render,0.04,1.0,0.0,5.7,22.0
+BuggedCity,RenderThread,RenderFinish,0.06,0.18,0.06,5.7,3.0
+BuggedCity,RenderThread,BeginFrame,0.11,0.11,0.03,18.0,1.0
+Canyon,GameThread,FEngineLoop::Tick (total frame),14.03,14.03,14.15,230.7,1.0
+Canyon,GameThread,WaitFrame (pacing),5.96,5.96,6.48,37.4,1.0
+Canyon,GameThread,UWorld tick,5.22,5.22,4.97,58.0,1.0
+Canyon,GameThread,Component ticks,0.03,2.46,0.0,9.2,77.0
+Canyon,GameThread,Skinned mesh (animation),0.05,0.44,0.0,5.4,8.8
+Canyon,GameThread,Blueprint ReceiveTick,0.02,0.71,0.0,2.0,38.6
+Canyon,GameThread,Widget updates,,,,,
+Canyon,GameThread,Slate prepass,,,,,
+Canyon,RenderThread,InitViews (visibility),0.32,1.94,0.0,7.8,6.0
+Canyon,RenderThread,Primitive scene infos,0.42,1.26,0.01,46.4,3.0
+Canyon,RenderThread,MobileBasePass,0.41,0.83,0.35,5.6,2.0
+Canyon,RenderThread,Slate render,0.04,0.84,0.05,4.5,22.9
+Canyon,RenderThread,RenderFinish,0.03,0.1,0.04,1.7,3.0
+Canyon,RenderThread,BeginFrame,0.08,0.08,0.03,11.4,1.0
+City,GameThread,FEngineLoop::Tick (total frame),18.74,18.74,17.34,291.5,1.0
+City,GameThread,WaitFrame (pacing),3.54,3.54,3.46,84.1,1.0
+City,GameThread,UWorld tick,10.44,10.44,10.79,186.6,1.0
+City,GameThread,Component ticks,0.04,4.83,0.0,42.9,130.1
+City,GameThread,Skinned mesh (animation),0.07,0.89,0.0,42.9,12.9
+City,GameThread,Blueprint ReceiveTick,0.02,0.83,0.0,2.6,40.5
+City,GameThread,Widget updates,,,,,
+City,GameThread,Slate prepass,,,,,
+City,RenderThread,InitViews (visibility),0.61,3.67,0.0,28.5,6.0
+City,RenderThread,Primitive scene infos,0.69,2.08,0.14,12.6,3.0
+City,RenderThread,MobileBasePass,0.95,1.91,0.62,59.8,2.0
+City,RenderThread,Slate render,0.05,1.28,0.06,5.6,23.5
+City,RenderThread,RenderFinish,0.05,0.16,0.05,4.6,3.0
+City,RenderThread,BeginFrame,0.1,0.1,0.03,15.4,1.0
+Energy_Electrical,GameThread,FEngineLoop::Tick (total frame),17.53,17.53,17.66,237.4,1.0
+Energy_Electrical,GameThread,WaitFrame (pacing),3.43,3.43,3.01,97.4,1.0
+Energy_Electrical,GameThread,UWorld tick,9.95,9.95,9.75,97.7,1.0
+Energy_Electrical,GameThread,Component ticks,0.03,4.5,0.0,48.1,132.9
+Energy_Electrical,GameThread,Skinned mesh (animation),0.08,1.02,0.0,48.1,13.1
+Energy_Electrical,GameThread,Blueprint ReceiveTick,0.02,0.76,0.0,2.7,38.7
+Energy_Electrical,GameThread,Widget updates,,,,,
+Energy_Electrical,GameThread,Slate prepass,,,,,
+Energy_Electrical,RenderThread,InitViews (visibility),0.49,2.96,0.0,20.8,6.0
+Energy_Electrical,RenderThread,Primitive scene infos,0.69,2.08,0.01,19.7,3.0
+Energy_Electrical,RenderThread,MobileBasePass,0.72,1.45,0.84,81.1,2.0
+Energy_Electrical,RenderThread,Slate render,0.06,1.28,0.0,37.7,23.0
+Energy_Electrical,RenderThread,RenderFinish,0.05,0.15,0.03,2.8,3.0
+Energy_Electrical,RenderThread,BeginFrame,0.11,0.11,0.03,17.0,1.0
+Fields,GameThread,FEngineLoop::Tick (total frame),15.55,15.55,3.66,10481.5,1.0
+Fields,GameThread,WaitFrame (pacing),4.05,4.05,4.02,197.7,1.0
+Fields,GameThread,UWorld tick,7.49,7.49,7.12,74.2,1.0
+Fields,GameThread,Component ticks,0.03,3.53,0.0,11.4,108.8
+Fields,GameThread,Skinned mesh (animation),0.05,0.53,0.0,5.9,10.7
+Fields,GameThread,Blueprint ReceiveTick,0.02,0.75,0.0,6.7,42.0
+Fields,GameThread,Widget updates,,,,,
+Fields,GameThread,Slate prepass,,,,,
+Fields,RenderThread,InitViews (visibility),0.38,2.27,0.0,11.8,6.0
+Fields,RenderThread,Primitive scene infos,0.55,1.64,0.11,9.8,3.0
+Fields,RenderThread,MobileBasePass,0.77,1.54,0.57,27.7,2.0
+Fields,RenderThread,Slate render,0.04,1.0,0.0,8.7,23.8
+Fields,RenderThread,RenderFinish,0.06,0.17,0.06,5.6,3.0
+Fields,RenderThread,BeginFrame,0.19,0.19,0.01,200.4,1.0
+Mines,GameThread,FEngineLoop::Tick (total frame),16.88,16.88,15.98,252.3,1.0
+Mines,GameThread,WaitFrame (pacing),3.6,3.6,3.19,62.2,1.0
+Mines,GameThread,UWorld tick,9.56,9.56,8.41,166.8,1.0
+Mines,GameThread,Component ticks,0.03,4.59,0.0,17.4,134.4
+Mines,GameThread,Skinned mesh (animation),0.04,0.94,0.0,3.8,27.3
+Mines,GameThread,Blueprint ReceiveTick,0.02,0.8,0.0,5.1,42.9
+Mines,GameThread,Widget updates,,,,,
+Mines,GameThread,Slate prepass,,,,,
+Mines,RenderThread,InitViews (visibility),0.4,2.42,0.0,9.2,6.0
+Mines,RenderThread,Primitive scene infos,0.57,1.71,0.13,12.1,3.0
+Mines,RenderThread,MobileBasePass,0.59,1.19,0.46,7.4,2.0
+Mines,RenderThread,Slate render,0.05,1.25,0.0,9.6,25.5
+Mines,RenderThread,RenderFinish,0.05,0.14,0.04,3.1,3.0
+Mines,RenderThread,BeginFrame,0.12,0.12,0.03,8.2,1.0
+Moon,GameThread,FEngineLoop::Tick (total frame),16.52,16.52,15.17,241.7,1.0
+Moon,GameThread,WaitFrame (pacing),3.46,3.46,3.23,78.5,1.0
+Moon,GameThread,UWorld tick,9.36,9.36,9.45,60.6,1.0
+Moon,GameThread,Component ticks,0.04,4.59,0.0,24.5,119.6
+Moon,GameThread,Skinned mesh (animation),0.06,0.81,0.04,3.6,13.4
+Moon,GameThread,Blueprint ReceiveTick,0.02,0.74,0.0,2.4,40.9
+Moon,GameThread,Widget updates,,,,,
+Moon,GameThread,Slate prepass,,,,,
+Moon,RenderThread,InitViews (visibility),0.38,2.25,0.0,8.0,6.0
+Moon,RenderThread,Primitive scene infos,0.64,1.93,0.14,13.0,3.0
+Moon,RenderThread,MobileBasePass,0.53,1.06,0.82,78.6,2.0
+Moon,RenderThread,Slate render,0.05,1.07,0.0,5.5,21.1
+Moon,RenderThread,RenderFinish,0.04,0.12,0.03,2.9,3.0
+Moon,RenderThread,BeginFrame,0.11,0.11,0.03,11.3,1.0
+Nasa,GameThread,FEngineLoop::Tick (total frame),16.19,16.19,15.72,262.4,1.0
+Nasa,GameThread,WaitFrame (pacing),3.75,3.75,3.71,90.6,1.0
+Nasa,GameThread,UWorld tick,8.83,8.83,9.33,56.7,1.0
+Nasa,GameThread,Component ticks,0.04,4.5,0.0,45.5,127.5
+Nasa,GameThread,Skinned mesh (animation),0.06,0.9,0.0,45.4,14.7
+Nasa,GameThread,Blueprint ReceiveTick,0.01,0.66,0.0,2.8,47.5
+Nasa,GameThread,Widget updates,,,,,
+Nasa,GameThread,Slate prepass,,,,,
+Nasa,RenderThread,InitViews (visibility),0.43,2.29,0.08,7.8,5.3
+Nasa,RenderThread,Primitive scene infos,0.73,2.19,0.01,20.9,3.0
+Nasa,RenderThread,MobileBasePass,0.75,1.5,0.5,46.9,2.0
+Nasa,RenderThread,Slate render,0.04,1.17,0.04,4.3,26.4
+Nasa,RenderThread,RenderFinish,0.04,0.13,0.04,3.6,3.0
+Nasa,RenderThread,BeginFrame,0.09,0.09,0.03,12.5,1.0
+Oasis,GameThread,FEngineLoop::Tick (total frame),14.81,14.81,13.45,232.2,1.0
+Oasis,GameThread,WaitFrame (pacing),3.31,3.31,2.54,81.8,1.0
+Oasis,GameThread,UWorld tick,8.14,8.14,7.93,83.2,1.0
+Oasis,GameThread,Component ticks,0.03,3.86,0.0,6.3,150.7
+Oasis,GameThread,Skinned mesh (animation),0.06,0.66,0.03,3.0,11.7
+Oasis,GameThread,Blueprint ReceiveTick,0.01,0.56,0.0,4.8,41.9
+Oasis,GameThread,Widget updates,,,,,
+Oasis,GameThread,Slate prepass,,,,,
+Oasis,RenderThread,InitViews (visibility),0.39,2.04,0.0,37.0,5.2
+Oasis,RenderThread,Primitive scene infos,0.55,1.65,0.15,13.4,3.0
+Oasis,RenderThread,MobileBasePass,0.54,1.08,0.52,24.8,2.0
+Oasis,RenderThread,Slate render,0.05,0.97,0.0,9.1,19.9
+Oasis,RenderThread,RenderFinish,0.04,0.12,0.06,5.6,3.0
+Oasis,RenderThread,BeginFrame,0.08,0.08,0.03,10.4,1.0
+Purification_Water_0,GameThread,FEngineLoop::Tick (total frame),14.37,14.37,14.03,68.1,1.0
+Purification_Water_0,GameThread,WaitFrame (pacing),5.16,5.16,5.26,42.9,1.0
+Purification_Water_0,GameThread,UWorld tick,6.18,6.18,6.04,59.5,1.0
+Purification_Water_0,GameThread,Component ticks,0.03,2.72,0.0,11.0,92.7
+Purification_Water_0,GameThread,Skinned mesh (animation),0.04,0.42,0.03,2.8,9.4
+Purification_Water_0,GameThread,Blueprint ReceiveTick,0.02,0.71,0.0,6.1,39.0
+Purification_Water_0,GameThread,Widget updates,,,,,
+Purification_Water_0,GameThread,Slate prepass,,,,,
+Purification_Water_0,RenderThread,InitViews (visibility),0.38,2.29,0.0,21.2,6.0
+Purification_Water_0,RenderThread,Primitive scene infos,0.51,1.51,0.06,5.0,3.0
+Purification_Water_0,RenderThread,MobileBasePass,0.56,1.14,0.42,6.7,2.0
+Purification_Water_0,RenderThread,Slate render,0.04,0.79,0.04,3.8,21.9
+Purification_Water_0,RenderThread,RenderFinish,0.04,0.13,0.04,3.6,3.0
+Purification_Water_0,RenderThread,BeginFrame,0.16,0.16,0.03,8.5,1.0
+Purification_Water_1,GameThread,FEngineLoop::Tick (total frame),15.21,15.21,13.49,257.6,1.0
+Purification_Water_1,GameThread,WaitFrame (pacing),4.14,4.14,3.93,54.7,1.0
+Purification_Water_1,GameThread,UWorld tick,7.79,7.79,7.47,137.7,1.0
+Purification_Water_1,GameThread,Component ticks,0.04,3.6,0.0,6.6,97.8
+Purification_Water_1,GameThread,Skinned mesh (animation),0.08,0.73,0.06,2.7,8.6
+Purification_Water_1,GameThread,Blueprint ReceiveTick,0.02,0.72,0.0,3.7,38.3
+Purification_Water_1,GameThread,Widget updates,,,,,
+Purification_Water_1,GameThread,Slate prepass,,,,,
+Purification_Water_1,RenderThread,InitViews (visibility),0.38,2.26,0.0,7.8,5.9
+Purification_Water_1,RenderThread,Primitive scene infos,0.6,1.8,0.07,6.0,3.0
+Purification_Water_1,RenderThread,MobileBasePass,0.64,1.29,0.49,47.5,2.0
+Purification_Water_1,RenderThread,Slate render,0.04,0.9,0.04,4.4,20.7
+Purification_Water_1,RenderThread,RenderFinish,0.04,0.13,0.03,2.7,3.0
+Purification_Water_1,RenderThread,BeginFrame,0.17,0.17,0.03,8.7,1.0
+Road_1,GameThread,FEngineLoop::Tick (total frame),14.36,14.36,13.98,268.2,1.0
+Road_1,GameThread,WaitFrame (pacing),4.22,4.22,3.93,42.6,1.0
+Road_1,GameThread,UWorld tick,7.06,7.06,7.45,76.2,1.0
+Road_1,GameThread,Component ticks,0.03,3.38,0.0,8.1,136.7
+Road_1,GameThread,Skinned mesh (animation),0.03,0.39,0.03,3.0,11.6
+Road_1,GameThread,Blueprint ReceiveTick,0.01,0.64,0.0,5.0,41.5
+Road_1,GameThread,Widget updates,,,,,
+Road_1,GameThread,Slate prepass,,,,,
+Road_1,RenderThread,InitViews (visibility),0.31,1.77,0.0,9.8,5.8
+Road_1,RenderThread,Primitive scene infos,0.51,1.53,0.01,19.1,3.0
+Road_1,RenderThread,MobileBasePass,0.48,0.96,0.43,7.8,2.0
+Road_1,RenderThread,Slate render,0.04,0.97,0.0,7.7,22.2
+Road_1,RenderThread,RenderFinish,0.04,0.11,0.03,2.3,3.0
+Road_1,RenderThread,BeginFrame,0.09,0.09,0.03,9.7,1.0

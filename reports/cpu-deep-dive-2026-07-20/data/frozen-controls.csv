@@ -1,0 +1,5 @@
+viewpoint,fps,active_gt_ms,wait_ms,app_gpu_ms,component_tick_calls_per_frame,component_tick_ms_per_frame,detect_targets_ms_per_frame,draws,indices
+Oasis A,72.5,4.816,9.03,9.17,20.0,1.063,0.176,134,384570
+Oasis B,71.8,5.093,8.895,10.0,21.31,1.193,0.18,169,571254
+Purification_Water_1 A,67.8,5.215,9.627,12.61,20.0,1.164,0.197,1050,2056650
+Purification_Water_1 B,72.5,4.99,8.858,8.85,21.68,1.121,0.19,391,757260

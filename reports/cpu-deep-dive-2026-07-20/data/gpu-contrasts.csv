@@ -1,0 +1,5 @@
+viewpoint,fps,active_gt_ms,app_gpu_ms,draws,indices,diagnosis
+Fields A,58.6,5.29,14.57,946,2976148,GPU + CPU/pacing
+Fields B,72.5,5.251,7.64,217,632850,Meets 72 Hz sample
+BuggedCity A,72.2,4.913,10.2,266,212144,Meets 72 Hz sample
+BuggedCity B,59.4,5.385,14.82,1136,1533950,GPU + CPU/pacing

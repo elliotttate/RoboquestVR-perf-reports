@@ -1,0 +1,13 @@
+level,vrapi_points,duplicate_vrapi_timestamps,scale_factor_values,duplicate_event_rows,unique_kill_signatures,raw_trace_status
+BuggedCity,332,0,0.98,0,4,HTTP 404
+Canyon,332,0,0.98,122,24,HTTP 404
+City,662,331,0.98;1.0,35,30,HTTP 404
+Energy_Electrical,658,329,0.89;0.91;0.98;1.0,80,42,HTTP 404
+Fields,320,3,0.0;0.3;0.98,182,56,HTTP 404
+Mines,354,111,0.0;0.98;1.0,159,42,HTTP 404
+Moon,333,0,0.98,201,10,HTTP 404
+Nasa,331,0,0.98,3,0,HTTP 404
+Oasis,329,0,0.98,341,0,HTTP 404
+Purification_Water_0,335,4,0.0;0.98;1.0,50,24,HTTP 404
+Purification_Water_1,333,0,0.98,9,19,HTTP 404
+Road_1,329,0,0.98,14,0,HTTP 404

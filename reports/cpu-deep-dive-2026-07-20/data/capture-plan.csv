@@ -1,0 +1,6 @@
+step,capture,required_signal,decision
+1,"Oasis and Purification II live combat, same seed and route",GameThread call tree with actor/component class ownership; dumpticks grouped; active AI/skill/component counts,Ranks the exact owner of the ~7.8–8.4 ms live-minus-frozen gap.
+2,A/B CVar: idle-skill tick gating only,"Active GT, component tick calls/frame, damage/shot/cooldown event equality",Ships only if it saves ≥0.7 ms without simulation drift.
+3,A/B CVar: 72/36/24 Hz AI significance tiers,"Active GT, ActorTicks, movement/attack latency, path failures and damage",Choose the least aggressive tier meeting the 10.5 ms active-GT target.
+4,A/B CVar: DetectTargets 72 Hz versus 36 Hz cached,"STAT_DetectTargets median/P99, acquisition latency and wrong-target count",Keep if median ≤0.10 ms and acquisition remains within 27.8 ms.
+5,Cold/warm hitch capture,"Per-hitch GC, file IO, async load, physics and PSO events",Assign each >50 ms frame to a measured subsystem before remediation.

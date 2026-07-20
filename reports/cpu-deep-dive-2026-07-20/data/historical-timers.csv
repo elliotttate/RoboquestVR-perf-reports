@@ -1,0 +1,21 @@
+level,timer,inclusive_ms_per_frame,calls_per_frame
+City,UWorld tick,10.44,1.0
+City,Component ticks,4.83,130.1
+City,Skinned mesh (animation),0.89,12.9
+City,Blueprint ReceiveTick,0.83,40.5
+Energy_Electrical,UWorld tick,9.95,1.0
+Energy_Electrical,Component ticks,4.5,132.9
+Energy_Electrical,Skinned mesh (animation),1.02,13.1
+Energy_Electrical,Blueprint ReceiveTick,0.76,38.7
+Mines,UWorld tick,9.56,1.0
+Mines,Component ticks,4.59,134.4
+Mines,Skinned mesh (animation),0.94,27.3
+Mines,Blueprint ReceiveTick,0.8,42.9
+Moon,UWorld tick,9.36,1.0
+Moon,Component ticks,4.59,119.6
+Moon,Skinned mesh (animation),0.81,13.4
+Moon,Blueprint ReceiveTick,0.74,40.9
+Nasa,UWorld tick,8.83,1.0
+Nasa,Component ticks,4.5,127.5
+Nasa,Skinned mesh (animation),0.9,14.7
+Nasa,Blueprint ReceiveTick,0.66,47.5

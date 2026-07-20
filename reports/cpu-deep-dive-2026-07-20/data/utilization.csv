@@ -1,0 +1,27 @@
+level,processor,utilization_pct
+Road,CPU,78.1
+Road,GPU,80.6
+Mines,CPU,82.6
+Mines,GPU,80.0
+Fields,CPU,84.2
+Fields,GPU,82.5
+Purification I,CPU,84.2
+Purification I,GPU,84.3
+Energy / Electrical,CPU,84.7
+Energy / Electrical,GPU,76.8
+City,CPU,81.0
+City,GPU,80.4
+NASA,CPU,81.6
+NASA,GPU,78.7
+Bugged City,CPU,79.1
+Bugged City,GPU,81.7
+Electrical (Corrupt),CPU,78.3
+Electrical (Corrupt),GPU,79.7
+Canyon,CPU,89.2
+Canyon,GPU,79.3
+Oasis,CPU,94.7
+Oasis,GPU,77.8
+Purification II,CPU,93.7
+Purification II,GPU,76.6
+Moon,CPU,82.1
+Moon,GPU,73.4

@@ -1,0 +1,13 @@
+level,campaign,fps_avg,fps_min,app_gpu_ms,gt_avg_ms,active_gt_ms,p99_gt_ms,worst_gt_ms,budget_miss_pct,kills,teleports
+City,Earlier combat,63.4,31.0,7.09,18.74,15.19,29.6,291.5,92.8,30.0,0.0
+Energy_Electrical,Earlier combat,65.1,40.0,6.81,17.53,14.1,27.6,237.4,88.2,42.0,0.0
+Mines,Earlier combat,69.1,1.0,6.96,16.88,13.29,33.9,252.3,72.7,68.0,0.0
+Moon,Earlier combat,61.4,42.0,8.98,16.52,13.06,24.5,241.7,83.5,10.0,0.0
+Nasa,Earlier combat,62.3,47.0,9.04,16.19,12.43,23.5,262.4,82.6,0.0,32.0
+BuggedCity,Earlier combat,63.2,42.0,10.51,15.99,12.34,23.8,289.5,85.0,4.0,0.0
+Fields,Earlier combat,67.0,38.0,9.62,15.55,11.5,27.1,10481.5,60.6,112.0,20.0
+Oasis,Earlier combat,68.3,46.0,8.74,14.81,11.49,24.1,232.2,61.8,0.0,0.0
+Purification_Water_1,Earlier combat,66.2,46.0,8.9,15.21,11.07,24.2,257.6,64.6,19.0,0.0
+Road_1,Earlier combat,70.0,55.0,8.44,14.36,10.14,23.8,268.2,53.0,0.0,0.0
+Purification_Water_0,Earlier combat,69.3,1.0,8.1,14.37,9.21,24.4,68.1,53.1,48.0,0.0
+Canyon,Earlier combat,71.7,51.0,8.1,14.03,8.07,19.3,230.7,49.6,24.0,0.0

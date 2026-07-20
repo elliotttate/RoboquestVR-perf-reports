@@ -1,0 +1,4 @@
+collection,assets,bytes,gib,local_status,contents
+Published download manifest,120,9286595959,8.65,120/120 size- and SHA-256-verified,"24 RenderDoc captures, 12 Insights bundles, GPU-stage logs, images, logs, JSON and report artifacts"
+Extracted deterministic Insights bundles,12,,0.73,192 extracted files,24 utrace/pftrace viewpoints plus timer CSV exports and screenshots
+Claude live-combat artifact,1,1609411,0.0015,Direct self-contained HTML downloaded; device serial redacted downstream,"13 level aggregates, downsampled frames, 60 spikes/level, VrApi series and screenshots"

@@ -1,0 +1,69 @@
+{
+  "generated_at": "2026-07-20T19:36:03+00:00",
+  "capture_commit": "0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2",
+  "code_commit_reviewed": "c4b9c36daf111dbc134d6e580ce0e327e318d7b5",
+  "overview": {
+    "live_levels": 13,
+    "live_frames": 277575,
+    "playtime_minutes": 71.4,
+    "weighted_mean_gt_ms": 15.25,
+    "weighted_fps": 65.6,
+    "weighted_budget_miss_pct": 66.0,
+    "worst_hitch_ms": 329.09,
+    "oasis_cpu_dom_rate": 0.9390000000000001,
+    "purii_cpu_dom_rate": 0.955,
+    "oasis_live_gap_ms": 8.446,
+    "purii_live_gap_ms": 7.788,
+    "download_assets": 120,
+    "download_gib": 8.65
+  },
+  "case_studies": [
+    {
+      "level": "Oasis",
+      "live_active_gt_ms": 13.4,
+      "frozen_active_gt_ms": 4.954,
+      "live_minus_frozen_ms": 8.446,
+      "live_cpu_util_pct": 94.7,
+      "live_gpu_util_pct": 77.8,
+      "cpu_dominant_pct": 93.9,
+      "live_actor_ticks_ms": 4.119,
+      "live_world_tick_ms": 9.386,
+      "live_skinned_mesh_ms": 0.905,
+      "live_blueprint_ms": 0.784,
+      "live_app_gpu_ms": 10.78,
+      "frozen_app_gpu_ms": 9.585,
+      "budget_miss_pct": 75.5,
+      "p99_gt_ms": 26.34,
+      "kills": 91,
+      "teleports": 0,
+      "interpretation": "Live simulation adds the dominant CPU cost; static view rendering alone does not explain it."
+    },
+    {
+      "level": "Purification II",
+      "live_active_gt_ms": 12.89,
+      "frozen_active_gt_ms": 5.103,
+      "live_minus_frozen_ms": 7.788,
+      "live_cpu_util_pct": 93.7,
+      "live_gpu_util_pct": 76.6,
+      "cpu_dominant_pct": 95.5,
+      "live_actor_ticks_ms": 4.098,
+      "live_world_tick_ms": 8.944,
+      "live_skinned_mesh_ms": 0.892,
+      "live_blueprint_ms": 0.724,
+      "live_app_gpu_ms": 10.72,
+      "frozen_app_gpu_ms": 10.73,
+      "budget_miss_pct": 77.2,
+      "p99_gt_ms": 26.97,
+      "kills": 23,
+      "teleports": 28,
+      "interpretation": "Live simulation adds the dominant CPU cost; static view rendering alone does not explain it."
+    }
+  ],
+  "correlations": {
+    "active_gt_vs_kill_density": 0.10209810036000494,
+    "actor_ticks_vs_kill_density": -0.02223782411618858,
+    "p99_vs_kill_density": 0.06482318734048755,
+    "warning": "n=13 level aggregates; descriptive and confounded, not causal"
+  },
+  "privacy": "Source device serial removed before generation."
+}

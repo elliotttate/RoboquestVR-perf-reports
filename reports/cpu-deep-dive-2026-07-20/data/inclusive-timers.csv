@@ -1,0 +1,13 @@
+level,timer,inclusive_ms
+Oasis,UWorld::Tick,9.386
+Oasis,Actor/component ticks,4.119
+Oasis,Skinned mesh,0.905
+Oasis,Blueprint events,0.784
+Purification II,UWorld::Tick,8.944
+Purification II,Actor/component ticks,4.098
+Purification II,Skinned mesh,0.892
+Purification II,Blueprint events,0.724
+Moon,UWorld::Tick,9.449
+Moon,Actor/component ticks,4.567
+Moon,Skinned mesh,0.764
+Moon,Blueprint events,0.743

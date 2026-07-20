@@ -1,0 +1,2630 @@
+{
+  "surface": "report",
+  "manifest": {
+    "version": 1,
+    "surface": "report",
+    "title": "RoboquestVR Quest 3 CPU Deep Dive — Live Combat vs Frozen A/B",
+    "description": "A source-backed diagnosis of sustained Quest 3 CPU pressure, two level case studies, exact code-change plan, validation gates and evidence limits.",
+    "generatedAt": "2026-07-20T19:36:03+00:00",
+    "cards": [
+      {
+        "id": "scope",
+        "description": "Live-combat evidence reviewed.",
+        "dataset": "overview",
+        "sourceId": "live",
+        "metrics": [
+          {
+            "label": "Live levels",
+            "field": "live_levels",
+            "format": "number"
+          },
+          {
+            "label": "Frames",
+            "field": "live_frames",
+            "format": "number"
+          },
+          {
+            "label": "Playtime",
+            "field": "playtime_minutes",
+            "format": "number",
+            "unit": "min"
+          }
+        ]
+      },
+      {
+        "id": "health",
+        "description": "Frame-health summary across all live levels.",
+        "dataset": "overview",
+        "sourceId": "live",
+        "metrics": [
+          {
+            "label": "Weighted mean GT",
+            "field": "weighted_mean_gt_ms",
+            "format": "number",
+            "unit": "ms"
+          },
+          {
+            "label": "Weighted FPS",
+            "field": "weighted_fps",
+            "format": "number"
+          },
+          {
+            "label": "Budget misses",
+            "field": "weighted_budget_miss_pct",
+            "format": "number",
+            "unit": "%"
+          }
+        ]
+      },
+      {
+        "id": "case_signal",
+        "description": "Share of samples with an 8-point CPU utilization lead.",
+        "dataset": "overview",
+        "sourceId": "case",
+        "metrics": [
+          {
+            "label": "Oasis CPU-dominant",
+            "field": "oasis_cpu_dom_rate",
+            "format": "percent"
+          },
+          {
+            "label": "Purification II CPU-dominant",
+            "field": "purii_cpu_dom_rate",
+            "format": "percent"
+          }
+        ]
+      },
+      {
+        "id": "simulation_gap",
+        "description": "Additional active GT in live combat versus mean frozen A/B control.",
+        "dataset": "overview",
+        "sourceId": "case",
+        "metrics": [
+          {
+            "label": "Oasis live gap",
+            "field": "oasis_live_gap_ms",
+            "format": "number",
+            "unit": "ms"
+          },
+          {
+            "label": "Purification II live gap",
+            "field": "purii_live_gap_ms",
+            "format": "number",
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "id": "inventory",
+        "description": "Downloaded and verified evidence pack.",
+        "dataset": "overview",
+        "sourceId": "inventory",
+        "metrics": [
+          {
+            "label": "Assets",
+            "field": "download_assets",
+            "format": "number"
+          },
+          {
+            "label": "Published size",
+            "field": "download_gib",
+            "format": "number",
+            "unit": "GiB"
+          }
+        ]
+      }
+    ],
+    "charts": [
+      {
+        "id": "active_levels",
+        "title": "Active GameThread time by live level",
+        "subtitle": "Active work excludes published frame-pacing wait; 13.89 ms is the complete 72 Hz frame budget.",
+        "type": "bar",
+        "dataset": "live_levels",
+        "sourceId": "live",
+        "layout": "full",
+        "encodings": {
+          "x": {
+            "field": "level",
+            "type": "nominal",
+            "label": "Level"
+          },
+          "y": {
+            "field": "active_gt_ms",
+            "type": "quantitative",
+            "label": "Active GameThread",
+            "unit": "ms"
+          },
+          "color": {
+            "field": "diagnosis",
+            "type": "nominal",
+            "label": "Evidence-based classification"
+          }
+        },
+        "valueFormat": "number",
+        "unit": "ms"
+      },
+      {
+        "id": "historical_active",
+        "title": "Active GameThread time in the earlier live-combat campaign",
+        "subtitle": "This older run has a different ranking and weaker raw-data availability; City and Energy exceed the complete 72 Hz budget on active GT alone.",
+        "type": "bar",
+        "dataset": "historical_combat",
+        "sourceId": "historical",
+        "layout": "full",
+        "encodings": {
+          "x": {
+            "field": "level",
+            "type": "nominal",
+            "label": "Level"
+          },
+          "y": {
+            "field": "active_gt_ms",
+            "type": "quantitative",
+            "label": "Active GameThread",
+            "unit": "ms"
+          },
+          "color": {
+            "field": "campaign",
+            "type": "nominal",
+            "label": "Campaign"
+          }
+        },
+        "valueFormat": "number",
+        "unit": "ms"
+      },
+      {
+        "id": "historical_timers",
+        "title": "Inclusive CPU timer families in the five heaviest earlier combat levels",
+        "subtitle": "Component ticks account for roughly 4.5–4.8 ms/frame and 120–134 dispatches/frame in the top levels; timer families overlap.",
+        "type": "bar",
+        "dataset": "historical_timers",
+        "sourceId": "historical",
+        "layout": "full",
+        "encodings": {
+          "x": {
+            "field": "level",
+            "type": "nominal",
+            "label": "Level"
+          },
+          "y": {
+            "field": "inclusive_ms_per_frame",
+            "type": "quantitative",
+            "label": "Inclusive milliseconds per frame",
+            "unit": "ms"
+          },
+          "color": {
+            "field": "timer",
+            "type": "nominal",
+            "label": "Timer family"
+          }
+        },
+        "valueFormat": "number",
+        "unit": "ms"
+      },
+      {
+        "id": "utilization",
+        "title": "Mean headset CPU and GPU utilization by live level",
+        "subtitle": "Paired bars use the artifact's approximately 1 Hz VrApi samples; utilization is a limiter signal, not elapsed time.",
+        "type": "bar",
+        "dataset": "utilization",
+        "sourceId": "live",
+        "layout": "full",
+        "encodings": {
+          "x": {
+            "field": "level",
+            "type": "nominal",
+            "label": "Level"
+          },
+          "y": {
+            "field": "utilization_pct",
+            "type": "quantitative",
+            "label": "Mean utilization",
+            "unit": "%"
+          },
+          "color": {
+            "field": "processor",
+            "type": "nominal",
+            "label": "Processor"
+          }
+        },
+        "valueFormat": "number",
+        "unit": "%"
+      },
+      {
+        "id": "live_frozen",
+        "title": "Active GameThread time in live combat and frozen controls",
+        "subtitle": "The frozen capture disables AI and pauses/dilates world simulation while preserving static scene load.",
+        "type": "bar",
+        "dataset": "active_conditions",
+        "sourceId": "case",
+        "layout": "full",
+        "encodings": {
+          "x": {
+            "field": "level_condition",
+            "type": "nominal",
+            "label": "Level and condition"
+          },
+          "y": {
+            "field": "active_gt_ms",
+            "type": "quantitative",
+            "label": "Active GameThread",
+            "unit": "ms"
+          },
+          "color": {
+            "field": "condition",
+            "type": "nominal",
+            "label": "Capture condition"
+          }
+        },
+        "valueFormat": "number",
+        "unit": "ms"
+      },
+      {
+        "id": "inclusive_timers",
+        "title": "Published inclusive timer families in three live levels",
+        "subtitle": "These timer families overlap and must not be stacked or summed; Moon is included as a low-kill control.",
+        "type": "bar",
+        "dataset": "inclusive_timers",
+        "sourceId": "live",
+        "layout": "full",
+        "encodings": {
+          "x": {
+            "field": "level",
+            "type": "nominal",
+            "label": "Level"
+          },
+          "y": {
+            "field": "inclusive_ms",
+            "type": "quantitative",
+            "label": "Inclusive milliseconds per frame",
+            "unit": "ms"
+          },
+          "color": {
+            "field": "timer",
+            "type": "nominal",
+            "label": "Timer family"
+          }
+        },
+        "valueFormat": "number",
+        "unit": "ms"
+      },
+      {
+        "id": "active_fps",
+        "title": "Live active GameThread time and average FPS",
+        "subtitle": "Each point is one full level aggregate; colors distinguish sustained CPU dominance from mixed pressure.",
+        "type": "scatter",
+        "dataset": "live_levels",
+        "sourceId": "live",
+        "layout": "full",
+        "encodings": {
+          "x": {
+            "field": "active_gt_ms",
+            "type": "quantitative",
+            "label": "Active GameThread (ms)"
+          },
+          "y": {
+            "field": "fps_avg",
+            "type": "quantitative",
+            "label": "Average FPS"
+          },
+          "color": {
+            "field": "diagnosis",
+            "type": "nominal",
+            "label": "Evidence-based classification"
+          }
+        },
+        "valueFormat": "number"
+      },
+      {
+        "id": "gpu_contrast",
+        "title": "Static A/B views with high and low render pressure",
+        "subtitle": "Fields A and BuggedCity B are hard primarily because app GPU time and submission volume rise while active GT stays near 5 ms.",
+        "type": "bar",
+        "dataset": "gpu_contrasts",
+        "sourceId": "frozen",
+        "layout": "full",
+        "encodings": {
+          "x": {
+            "field": "viewpoint",
+            "type": "nominal",
+            "label": "Viewpoint"
+          },
+          "y": {
+            "field": "app_gpu_ms",
+            "type": "quantitative",
+            "label": "App GPU time",
+            "unit": "ms"
+          },
+          "color": {
+            "field": "diagnosis",
+            "type": "nominal",
+            "label": "Published classification"
+          }
+        },
+        "valueFormat": "number",
+        "unit": "ms"
+      }
+    ],
+    "tables": [
+      {
+        "id": "live_matrix",
+        "title": "All live-combat level metrics",
+        "subtitle": "CPU-dominant share uses the report's 8-percentage-point utilization rule; timers are inclusive.",
+        "dataset": "live_levels",
+        "sourceId": "live",
+        "layout": "full",
+        "density": "comfortable",
+        "defaultSort": {
+          "field": "active_gt_ms",
+          "direction": "desc"
+        },
+        "columns": [
+          {
+            "field": "level",
+            "label": "Level",
+            "type": "text"
+          },
+          {
+            "field": "fps_avg",
+            "label": "FPS avg",
+            "type": "number"
+          },
+          {
+            "field": "mean_gt_ms",
+            "label": "Mean GT",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "p99_gt_ms",
+            "label": "P99",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "active_gt_ms",
+            "label": "Active GT",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "cpu_util_pct",
+            "label": "CPU util",
+            "type": "number",
+            "unit": "%"
+          },
+          {
+            "field": "gpu_util_pct",
+            "label": "GPU util",
+            "type": "number",
+            "unit": "%"
+          },
+          {
+            "field": "cpu_dominant_pct",
+            "label": "CPU-dom",
+            "type": "number",
+            "unit": "%"
+          },
+          {
+            "field": "actor_ticks_ms",
+            "label": "Actor ticks*",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "kills",
+            "label": "Kills",
+            "type": "number"
+          },
+          {
+            "field": "teleports",
+            "label": "Teleports",
+            "type": "number"
+          },
+          {
+            "field": "diagnosis",
+            "label": "Diagnosis",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "cases",
+        "title": "Oasis and Purification II live-versus-frozen evidence",
+        "subtitle": "Frozen value is the A/B mean; live-minus-frozen isolates the cost removed when AI and world simulation are frozen, not AI alone.",
+        "dataset": "case_studies",
+        "sourceId": "case",
+        "layout": "full",
+        "density": "comfortable",
+        "defaultSort": {
+          "field": "live_minus_frozen_ms",
+          "direction": "desc"
+        },
+        "columns": [
+          {
+            "field": "level",
+            "label": "Level",
+            "type": "text"
+          },
+          {
+            "field": "live_active_gt_ms",
+            "label": "Live active GT",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "frozen_active_gt_ms",
+            "label": "Frozen active GT",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "live_minus_frozen_ms",
+            "label": "Live gap",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "cpu_dominant_pct",
+            "label": "CPU-dom",
+            "type": "number",
+            "unit": "%"
+          },
+          {
+            "field": "live_actor_ticks_ms",
+            "label": "Actor ticks*",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "live_skinned_mesh_ms",
+            "label": "Skinned mesh*",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "live_blueprint_ms",
+            "label": "Blueprint*",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "budget_miss_pct",
+            "label": "Misses",
+            "type": "number",
+            "unit": "%"
+          }
+        ]
+      },
+      {
+        "id": "frozen_controls",
+        "title": "Frozen control detail",
+        "subtitle": "The static controls retain 20–22 component-tick calls per frame but only about 1 ms/frame of aggregate component tick work.",
+        "dataset": "frozen_controls",
+        "sourceId": "frozen",
+        "layout": "full",
+        "density": "comfortable",
+        "defaultSort": {
+          "field": "active_gt_ms",
+          "direction": "desc"
+        },
+        "columns": [
+          {
+            "field": "viewpoint",
+            "label": "Viewpoint",
+            "type": "text"
+          },
+          {
+            "field": "fps",
+            "label": "FPS",
+            "type": "number"
+          },
+          {
+            "field": "active_gt_ms",
+            "label": "Active GT",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "app_gpu_ms",
+            "label": "App GPU",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "component_tick_calls_per_frame",
+            "label": "Component calls/frame",
+            "type": "number"
+          },
+          {
+            "field": "component_tick_ms_per_frame",
+            "label": "Component tick",
+            "type": "number",
+            "unit": "ms/frame"
+          },
+          {
+            "field": "detect_targets_ms_per_frame",
+            "label": "DetectTargets",
+            "type": "number",
+            "unit": "ms/frame"
+          },
+          {
+            "field": "draws",
+            "label": "Draws",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "id": "historical_combat",
+        "title": "Earlier live-combat campaign",
+        "subtitle": "This campaign strongly corroborates the world/component-tick mechanism but ranks different levels; VrApi caveats apply to City, Energy and Mines.",
+        "dataset": "historical_combat",
+        "sourceId": "historical",
+        "layout": "full",
+        "density": "comfortable",
+        "defaultSort": {
+          "field": "active_gt_ms",
+          "direction": "desc"
+        },
+        "columns": [
+          {
+            "field": "level",
+            "label": "Level",
+            "type": "text"
+          },
+          {
+            "field": "fps_avg",
+            "label": "FPS avg",
+            "type": "number"
+          },
+          {
+            "field": "gt_avg_ms",
+            "label": "Mean GT",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "active_gt_ms",
+            "label": "Active GT",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "p99_gt_ms",
+            "label": "P99",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "budget_miss_pct",
+            "label": "Misses",
+            "type": "number",
+            "unit": "%"
+          },
+          {
+            "field": "app_gpu_ms",
+            "label": "App GPU",
+            "type": "number",
+            "unit": "ms"
+          },
+          {
+            "field": "kills",
+            "label": "Kills",
+            "type": "number"
+          }
+        ]
+      },
+      {
+        "id": "historical_quality",
+        "title": "Earlier combat data-availability audit",
+        "subtitle": "All published raw .utrace links currently return 404; mixed scale-factor branches and duplicate events are reported rather than silently averaged away.",
+        "dataset": "historical_quality",
+        "sourceId": "historical_quality",
+        "layout": "full",
+        "density": "comfortable",
+        "defaultSort": {
+          "field": "duplicate_vrapi_timestamps",
+          "direction": "desc"
+        },
+        "columns": [
+          {
+            "field": "level",
+            "label": "Level",
+            "type": "text"
+          },
+          {
+            "field": "vrapi_points",
+            "label": "VrApi rows",
+            "type": "number"
+          },
+          {
+            "field": "duplicate_vrapi_timestamps",
+            "label": "Duplicate timestamps",
+            "type": "number"
+          },
+          {
+            "field": "scale_factor_values",
+            "label": "SF values",
+            "type": "text"
+          },
+          {
+            "field": "duplicate_event_rows",
+            "label": "Duplicate events",
+            "type": "number"
+          },
+          {
+            "field": "unique_kill_signatures",
+            "label": "Unique kills",
+            "type": "number"
+          },
+          {
+            "field": "raw_trace_status",
+            "label": "Raw trace links",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "action_plan",
+        "title": "Prioritized engineering changes",
+        "subtitle": "Targets are experiment gates, not guaranteed savings; each change is isolated behind an A/B control.",
+        "dataset": "actions",
+        "sourceId": "actions",
+        "layout": "full",
+        "density": "comfortable",
+        "defaultSort": {
+          "field": "priority",
+          "direction": "asc"
+        },
+        "columns": [
+          {
+            "field": "priority",
+            "label": "Priority",
+            "type": "text"
+          },
+          {
+            "field": "change",
+            "label": "Change",
+            "type": "text"
+          },
+          {
+            "field": "exact_area",
+            "label": "Exact area",
+            "type": "text"
+          },
+          {
+            "field": "implementation",
+            "label": "Implementation",
+            "type": "text"
+          },
+          {
+            "field": "target",
+            "label": "Measured target",
+            "type": "text"
+          },
+          {
+            "field": "ship_gate",
+            "label": "Ship gate",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "capture_plan",
+        "title": "Measurement sequence",
+        "subtitle": "The first run closes the ownership gap; subsequent runs isolate one change at a time.",
+        "dataset": "capture_plan",
+        "sourceId": "actions",
+        "layout": "full",
+        "density": "comfortable",
+        "defaultSort": {
+          "field": "step",
+          "direction": "asc"
+        },
+        "columns": [
+          {
+            "field": "step",
+            "label": "Step",
+            "type": "number"
+          },
+          {
+            "field": "capture",
+            "label": "Capture",
+            "type": "text"
+          },
+          {
+            "field": "required_signal",
+            "label": "Required signal",
+            "type": "text"
+          },
+          {
+            "field": "decision",
+            "label": "Decision rule",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "boundaries",
+        "title": "What the evidence proves—and what it does not",
+        "subtitle": "Strength is assessed against the actual capture granularity and control design.",
+        "dataset": "limitations",
+        "sourceId": "limits",
+        "layout": "full",
+        "density": "comfortable",
+        "defaultSort": {
+          "field": "strength",
+          "direction": "asc"
+        },
+        "columns": [
+          {
+            "field": "claim",
+            "label": "Claim",
+            "type": "text"
+          },
+          {
+            "field": "strength",
+            "label": "Strength",
+            "type": "text"
+          },
+          {
+            "field": "support",
+            "label": "Support",
+            "type": "text"
+          },
+          {
+            "field": "boundary",
+            "label": "Boundary",
+            "type": "text"
+          }
+        ]
+      },
+      {
+        "id": "inventory_table",
+        "title": "Downloaded evidence inventory",
+        "subtitle": "The complete public pack was downloaded locally and verified against the published manifest before analysis.",
+        "dataset": "inventory_rows",
+        "sourceId": "inventory",
+        "layout": "full",
+        "density": "comfortable",
+        "defaultSort": {
+          "field": "assets",
+          "direction": "desc"
+        },
+        "columns": [
+          {
+            "field": "collection",
+            "label": "Collection",
+            "type": "text"
+          },
+          {
+            "field": "assets",
+            "label": "Assets",
+            "type": "number"
+          },
+          {
+            "field": "gib",
+            "label": "GiB",
+            "type": "number"
+          },
+          {
+            "field": "local_status",
+            "label": "Local status",
+            "type": "text"
+          },
+          {
+            "field": "contents",
+            "label": "Contents",
+            "type": "text"
+          }
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "id": "live",
+        "label": "Reviewed live-combat level evidence",
+        "path": "https://claude.ai/code/artifact/4ec51d75-9133-4124-b971-2f0f50e4c1d9"
+      },
+      {
+        "id": "case",
+        "label": "Live-versus-frozen CPU case-study evidence",
+        "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/case-studies.csv"
+      },
+      {
+        "id": "frozen",
+        "label": "Deterministic frozen A/B dossier",
+        "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/"
+      },
+      {
+        "id": "historical",
+        "label": "Historical live-combat report audit",
+        "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/reports/combat-2026-07-19/"
+      },
+      {
+        "id": "historical_quality",
+        "label": "Historical live-combat availability and duplication audit",
+        "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/historical-quality.csv"
+      },
+      {
+        "id": "actions",
+        "label": "Prioritized remediation plan",
+        "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/actions.csv"
+      },
+      {
+        "id": "limits",
+        "label": "Evidence-strength and availability review",
+        "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/evidence-boundaries.csv"
+      },
+      {
+        "id": "inventory",
+        "label": "Downloaded artifact inventory",
+        "path": "https://roboquestvr-quest3-performance.elliotttate.chatgpt.site/api/downloads/rq3-86269d35efae42dcb8ab6a04/artifact_index.json"
+      },
+      {
+        "id": "code",
+        "label": "RoboquestVR capture-commit source inspection",
+        "path": "https://github.com/Flat2VRStudios/RoboquestVR/tree/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2"
+      }
+    ],
+    "blocks": [
+      {
+        "id": "title",
+        "type": "markdown",
+        "body": "# RoboquestVR Quest 3 CPU Deep Dive — Live Combat vs Frozen A/B"
+      },
+      {
+        "id": "technical_summary",
+        "type": "markdown",
+        "body": "## Technical summary\n\n**Decision:** fix live world/actor simulation first in **Oasis** and **Purification II**. Do not lower eye resolution globally as the first response.\n\nOasis averages **13.40 ms** of active GameThread work, **94.7% CPU** versus **77.8% GPU**, and **93.9%** of its VrApi samples meet the artifact's CPU-dominant rule. Purification II is almost identical: **12.89 ms**, **93.7% CPU** versus **76.6% GPU**, and **95.5%** CPU-dominant samples.\n\nThe matched-level frozen controls are the key discriminator. Their active GameThread time is only **4.82–5.22 ms**. The control explicitly turns AI off and pauses or nearly stops world time while leaving the seeded population visible. Live combat therefore adds **8.45 ms in Oasis** and **7.79 ms in Purification II**. That is strong subsystem-level evidence that the primary extra cost is simulation and live actor/component work—not static scene rendering alone.\n\nThe largest published actionable timer family is actor/component ticking at **4.119 ms in Oasis** and **4.098 ms in Purification II**, with skinned-mesh work near **0.9 ms** and Blueprint events near **0.75 ms**. These are **inclusive, overlapping timers**. They identify where to investigate, but they must not be summed and they do not yet name the exact actor class.\n\nAn earlier combat report independently shows the same pattern at greater intensity: **City reaches 15.19 ms active GT with 4.83 ms of component ticks and 130.1 component dispatches/frame**. Its raw traces are no longer downloadable and some VrApi rows are duplicated, so it is used as corroboration rather than merged with the newer campaign.",
+        "sourceId": "case"
+      },
+      {
+        "id": "metrics",
+        "type": "metric-strip",
+        "cardIds": [
+          "scope",
+          "health",
+          "case_signal",
+          "simulation_gap",
+          "inventory"
+        ]
+      },
+      {
+        "id": "bottom_line",
+        "type": "markdown",
+        "body": "## Bottom line\n\n1. **Oasis and Purification II are the clean CPU cases.** Energy/Electrical has more budget misses, and NASA has a slightly higher mean frame time, but both are more mixed. Oasis and Purification II have the strongest sustained CPU-over-GPU utilization lead.\n2. **The missing milliseconds appear only when the world is live.** Frozen views preserve rendering load yet remove roughly eight milliseconds of active GameThread work.\n3. **The best first code changes are cadence and idle-work changes:** stop ticking idle skill components, tier non-critical AI at 36/24 Hz, cache player target-detection broad phase, and further gate enemy animation/widgets by significance.\n4. **The first engineering task is measurement, not guesswork.** Export owner-resolved live call trees and tick inventories so the ~4.1 ms actor timer can be assigned to exact classes.\n5. **Hitches are a separate track.** The 214–282 ms worst frames in the two case studies are real, but the current artifact does not prove whether they are GC, IO/streaming, physics, or PSO stalls.",
+        "sourceId": "case"
+      },
+      {
+        "id": "scope_method",
+        "type": "markdown",
+        "body": "## Scope, data and metric definitions\n\nThis analysis joins two complementary datasets:\n\n- The supplied live-combat artifact covers **13 levels, 277,575 frames and 71.4 minutes** on Quest 3. It contains aggregate Unreal timing, downsampled frame envelopes, up to 60 exact spikes per level, and approximately 1 Hz VrApi telemetry.\n- The GitHub dossier covers **12 deterministic levels × two viewpoints** at a fixed seed with AI disabled and the world frozen for the static capture pass. It contains 24 Insights/Perfetto viewpoints, 24 RenderDoc viewpoints in the report, GPU-stage traces, images and parsed summaries. One RenderDoc asset is explicitly noted as recaptured from a different build, and BuggedCity GPU stages are fallback records.\n\n**Active GameThread** is the published mean `FEngineLoop::Tick` time minus frame-pacing wait. **CPU-dominant** follows the source artifact's rule: CPU utilization at least eight percentage points above GPU utilization. **72 Hz budget** is 13.89 ms. Timer rows called `UWorld::Tick`, actor/component ticks, skinned mesh and Blueprint events are inclusive and overlapping.\n\nThe frozen controls are a multi-factor simulation-off control: AI is disabled, the world is paused when possible, and time dilation is forced to 0.0001. They isolate *live simulation as a bundle* from static rendering, but they are not an AI-only causal experiment.",
+        "sourceId": "limits"
+      },
+      {
+        "id": "active_levels_chart",
+        "type": "chart",
+        "chartId": "active_levels",
+        "layout": "full"
+      },
+      {
+        "id": "active_levels_read",
+        "type": "markdown",
+        "body": "### Interpretation\n\nThe active-GT ranking is different from the total-frame ranking because some levels spend more time waiting on the renderer/compositor. Oasis, Purification II, Moon, NASA and Energy/Electrical form the high-active-work cluster near 13 ms. Oasis and Purification II are selected because their utilization samples independently say the CPU is the sustained limiter, while NASA is mostly balanced and Moon has weaker sustained CPU classification.",
+        "sourceId": "live"
+      },
+      {
+        "id": "util_chart",
+        "type": "chart",
+        "chartId": "utilization",
+        "layout": "full"
+      },
+      {
+        "id": "util_read",
+        "type": "markdown",
+        "body": "### Interpretation\n\nOasis and Purification II are outliers in *limiter certainty*, not just average frame time. Their CPU utilization is about 16–17 points above GPU utilization, and more than 93% of samples satisfy the CPU-dominant rule. Resolution or shader-quality reductions may add GPU headroom, but they do not directly remove the ~13 ms GameThread lane.",
+        "sourceId": "live"
+      },
+      {
+        "id": "live_table",
+        "type": "table",
+        "tableId": "live_matrix",
+        "layout": "full"
+      },
+      {
+        "id": "live_table_note",
+        "type": "markdown",
+        "body": "### Important table note\n\n`Actor ticks*` is an inclusive timer family. It can overlap `UWorld::Tick`, skinned-mesh work, Blueprint events and task execution. Treat each number as a probe target, never as a mutually exclusive slice of a pie.",
+        "sourceId": "limits"
+      },
+      {
+        "id": "historical_reconciliation",
+        "type": "markdown",
+        "body": "## Reconciliation with the earlier live-combat report\n\nThe GitHub site also contains an earlier live-combat campaign. It tells the same *mechanism* story but not the same *level ranking*. In that run, **City reaches 15.19 ms active GT**, **Energy/Electrical 14.10 ms**, and **Mines 13.29 ms**. City and Energy exceed the entire 13.89 ms 72 Hz budget on active GameThread work alone.\n\nThe earlier timer tables are particularly useful: City, Energy, Mines, Moon and NASA each report roughly **4.5–4.8 ms of inclusive component ticks**, **120–134 component dispatches per frame**, **0.66–0.83 ms Blueprint ReceiveTick**, and **0.81–1.02 ms skinned-mesh work**. That independently corroborates the newer artifact's ~4.1 ms actor/component family and makes high-frequency component dispatch the best cross-run optimization target.\n\nThe campaigns must not be averaged together. The supplied newer “matched-main” artifact ranks Oasis and Purification II as the clean CPU cases, while the earlier report ranks City and Energy. Code, capture route, state, and telemetry quality can all move the ranking. This report chooses Oasis and Purification II for the primary case studies because the supplied artifact provides direct CPU/GPU utilization dominance and pairs cleanly with frozen controls; it uses the earlier report as corroboration of the component-tick mechanism.\n\nThere are two material caveats in the earlier run. All 12 raw combat `.utrace` links currently return HTTP 404, so the published aggregates cannot be reopened. City, Energy and Mines also contain duplicate same-second VrApi rows from multiple scale-factor branches. Those issues weaken their FPS/GPU averages, but they do not erase the separately published Unreal active-GT and component-timer pattern.",
+        "sourceId": "historical"
+      },
+      {
+        "id": "historical_active_chart",
+        "type": "chart",
+        "chartId": "historical_active",
+        "layout": "full"
+      },
+      {
+        "id": "historical_timer_chart",
+        "type": "chart",
+        "chartId": "historical_timers",
+        "layout": "full"
+      },
+      {
+        "id": "historical_combat_table",
+        "type": "table",
+        "tableId": "historical_combat",
+        "layout": "full"
+      },
+      {
+        "id": "historical_quality_table",
+        "type": "table",
+        "tableId": "historical_quality",
+        "layout": "full"
+      },
+      {
+        "id": "oasis",
+        "type": "markdown",
+        "body": "## Case study 1 — Oasis: the clearest sustained CPU limit\n\nOasis averages **62.5 FPS**, misses the 72 Hz budget on **75.5%** of frames, and has a **26.34 ms P99**. Its app GPU average is **10.78 ms**, leaving more GPU headroom than the GameThread lane suggests. The utilization signal is decisive: **94.7% CPU**, **77.8% GPU**, and **93.9% CPU-dominant samples**.\n\nThe measured live CPU structure is:\n\n- Active GameThread: **13.400 ms**\n- `UWorld::Tick` family: **9.386 ms**\n- Actor/component ticks: **4.119 ms**\n- Skinned mesh: **0.905 ms**\n- Blueprint events: **0.784 ms**\n\nThe frozen Oasis views run at **4.816 and 5.093 ms active GT** and both remain near 72 FPS. Their static app-GPU values are **9.17 and 10.00 ms**, so the scene itself is not free, but it is not sufficient to produce the live CPU failure. The mean frozen-to-live active-GT gap is **8.446 ms**.\n\nOasis records 91 kills, but combat count alone is not a complete explanation. Purification II reaches essentially the same CPU state with only 23 kills, and Moon reaches 13.05 ms active GT with only 10 kills. The more consistent hypothesis is a broad live-actor cost—AI state, movement, skill components, target/visibility queries, animation and Blueprint ticks—whose exact owner mix varies by level.",
+        "sourceId": "case"
+      },
+      {
+        "id": "purii",
+        "type": "markdown",
+        "body": "## Case study 2 — Purification II: the low-kill control with the same CPU signature\n\nPurification II averages **62.3 FPS**, misses **77.2%** of frames, and has a **26.97 ms P99**. Its **95.5% CPU-dominant share** is the highest of all 13 levels.\n\nThe measured live CPU structure is:\n\n- Active GameThread: **12.890 ms**\n- `UWorld::Tick` family: **8.944 ms**\n- Actor/component ticks: **4.098 ms**\n- Skinned mesh: **0.892 ms**\n- Blueprint events: **0.724 ms**\n\nThe frozen Purification_Water_1 viewpoints fall to **5.215 and 4.990 ms active GT**. Spot A is still a difficult GPU view at 12.61 ms app GPU and 67.8 FPS, while spot B is healthy at 8.85 ms and 72.5 FPS. That split matters: the level has a *secondary, view-local render problem*, but the full live run has a separate sustained CPU problem. The live-minus-frozen active-GT gap is **7.788 ms**.\n\nPurification II also has the highest live `RHI Translate` value (**6.814 ms**) and a **1.617 ms** BasePass timer. After the GameThread work is reduced, its deterministic A/B views are the right test bed for proxy/culling and submission work. They are not evidence for globally dropping resolution first.",
+        "sourceId": "case"
+      },
+      {
+        "id": "live_frozen_chart",
+        "type": "chart",
+        "chartId": "live_frozen",
+        "layout": "full"
+      },
+      {
+        "id": "control_read",
+        "type": "markdown",
+        "body": "### Why this control is persuasive—and what it cannot isolate\n\nThe seven-to-eight-millisecond drop is much larger than ordinary run noise and repeats across both selected levels. The control retains the static scene, eye resolution and seeded visible population, which rules out “this level is simply too detailed to render” as a complete explanation for live active-GT cost.\n\nHowever, AI-off plus pause/time-dilation also suppresses physics, animation advancement, timers and other world updates. The honest conclusion is **live world/actor simulation is primary**. The narrower claim **AI behavior alone costs eight milliseconds** requires a live A/B run that changes only AI cadence or activation.",
+        "sourceId": "limits"
+      },
+      {
+        "id": "case_table",
+        "type": "table",
+        "tableId": "cases",
+        "layout": "full"
+      },
+      {
+        "id": "frozen_table",
+        "type": "table",
+        "tableId": "frozen_controls",
+        "layout": "full"
+      },
+      {
+        "id": "shared_mechanism",
+        "type": "markdown",
+        "body": "## Shared mechanism across the CPU-heavy levels\n\nThree observations point away from a simple “more kills = more CPU” story:\n\n- Oasis: **91 kills**, 13.40 ms active GT, 4.119 ms actor ticks.\n- Purification II: **23 kills**, 12.89 ms active GT, 4.098 ms actor ticks.\n- Moon: **10 kills**, 13.05 ms active GT, 4.567 ms actor ticks.\n\nAcross only 13 level aggregates, active GT versus kill density has Pearson **r=0.10**; actor ticks versus kill density **r=-0.02**; P99 versus kill density **r=0.06**. These correlations are descriptive and heavily confounded, but they are enough to reject kill volume as a sufficient diagnosis.\n\nThe shared CPU floor is consistent with *how many objects remain active and how often they update*, not simply how many enemies die. That includes inactive-looking skill components polling state, nearby AI actor/controller/brain/path ticks, visibility/target queries, animation evaluation and world widgets. The owner-resolved capture is needed to rank those contributors exactly.",
+        "sourceId": "live"
+      },
+      {
+        "id": "inclusive_chart",
+        "type": "chart",
+        "chartId": "inclusive_timers",
+        "layout": "full"
+      },
+      {
+        "id": "inclusive_read",
+        "type": "markdown",
+        "body": "### Why the timers cannot be stacked\n\nFor Oasis, the four displayed values total 15.194 ms—already above the 13.40 ms active-GT total. That is not a data error in the source values; it is proof that the timer families overlap. `UWorld::Tick` is a broad parent, actor/component timers contain nested animation and Blueprint work, and parallel task timing can appear in multiple inclusive views. The correct use is prioritization and before/after comparison of the same timer, not additive accounting.",
+        "sourceId": "limits"
+      },
+      {
+        "id": "code_map",
+        "type": "markdown",
+        "body": "## Exact code paths to change\n\nThe frozen dataset identifies capture commit `0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2`. Relevant AI and skill files are unchanged between that capture commit and local HEAD `c4b9c36daf111dbc134d6e580ce0e327e318d7b5`; `Character_Player.cpp` has unrelated changes around loading/recalibration, while the target-detection loop remains present. The recommendations below therefore map to code that exists in the measured build lineage.\n\n### 1. Idle skill components\n\n[`ACharacter_AI::SetAIActivated`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Character/Character_AI.cpp#L1177) loops over every skill and calls `SetComponentTickEnabled(bActivate)`. [`UASkill::TickComponent`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Skill/ASkill.cpp#L134) then polls cooldown, firerate, duration and several queues each tick; [`UAAISkill::TickComponent`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Skill/AAISkill.cpp#L47) adds recovery, preshoot and area-delay polling.\n\nChange this to state-driven ticking. Add a single `RefreshTickEnabled()` that ORs the base and AI active-work flags. Every method that sets or clears one of those flags calls it. Activation should make the component *eligible*, not permanently tick-enabled. This is the most direct code-level response to a live actor/component timer around 4.1 ms.\n\n### 2. A definite StatManager tick-shutdown bug\n\n[`UAStatManager::CanStopTick`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Manager/AStatManager.cpp#L57) first returns false while any DoT map is populated, then returns `bHitFeedbackAlive`. But [`OnTickHitFeedback`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Manager/AStatManager.cpp#L1050) disables the component only when `CanStopTick()` returns true—immediately after setting `bHitFeedbackAlive=false`. That condition can never succeed. [`OnRemoveDot`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Manager/AStatManager.cpp#L949) clears a DoT map but never retries tick shutdown.\n\nFix the predicate to return `!bHitFeedbackAlive && !bHitFeedbackTick` after proving every DoT map is empty. Centralize the disable check in `TryStopTick()` and invoke it after the final DoT removal and the hit-feedback fade. Unlike the broader AI hypotheses, this is a concrete logic defect that can strand combat components in the tick manager.\n\n### 3. Per-icon compass component ticks\n\n[`UACompassLocator::TickComponent`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Component/ACompassLocator.cpp#L63) sends an update every frame for every registered icon. [`UCompassWidget::UpdateIconPosition`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Widgets/Compass/CompassWidget.cpp#L105) then repeats distance, projection, inverse-transform, curve evaluation and UMG property writes per icon. Seeking and attacking enemies register these locators, so this mechanism scales with encounter population and plausibly contributes to both the historical 120–134 component dispatches/frame and the ~1.0–1.3 ms Slate RenderThread lane.\n\nReplace per-locator tick functions with one controller/widget registry. Update urgent central threats at 30 Hz, distant/offscreen icons at 20 Hz, cache the camera/viewport once per batch, and only write UMG properties when the value changed enough to render differently. Instrument it before claiming a precise share.\n\n### 4. Binary Near/Far AI cadence\n\n[`SetMeshActivated`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Character/Character_AI.cpp#L1110) enables the actor and controller; [`SetAIActivated`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Character/Character_AI.cpp#L1172) enables skills, brain and path-following; [`SetCurrentDynamicLoadingState`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Character/Character_AI.cpp#L1400) switches the whole bundle on for Near and off for Far/Off. [`RefreshDynamicLoadingState`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Character/Character_AI.cpp#L1352) already staggers a 1.0–1.5 second state check, which helps spikes, but the active state itself is full cadence.\n\nAdd a second dimension—**update tier**—inside Near. Preserve 72 Hz for bosses, the current attacker/target and the closest combatants. Apply 36 Hz to visible non-attacking Near AI and 24 Hz to occluded/off-axis Near AI. Apply the same tier coherently to actor, controller/brain, path following, skills and animation so systems do not drift independently.\n\n### 5. Per-frame player target detection\n\n[`AAPlayerController::PreProcessInput`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Character/APlayerController.cpp#L574) calls `DetectTargets()` every frame. [`DetectTargets`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Character/Character_Player.cpp#L16972) performs a capsule sweep, distributes hits through multiple cones, sorts hits by crosshair distance, line-traces unverified impact points, then performs two crosshair raycasts.\n\nThe frozen controls already spend about 0.18–0.20 ms/frame here with static enemies. Move the expensive broad phase to 36 Hz, cache candidates, and keep only current-target validation cheap and per-frame. This is a bounded saving, not the whole eight-millisecond gap.\n\n### 6. Animation and widgets\n\n[`GraphicsSettingsSubsystem`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/GameSystem/GraphicsSettingsSubsystem.cpp#L181) already limits enemy widget ticks to 20 Hz and enables skeletal URO. [`ACharacter_AI`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Character/Character_AI.cpp#L1454) changes visibility-based animation policy by dynamic-loading state. Preserve those changes; extend them with screen-size/significance tiers and fully disable hidden widget render targets. The live skinned-mesh timer of ~0.9 ms supports a measured target of ≤0.6 ms, not a speculative rewrite.\n\n### 7. Empty permanent ticks\n\n[`UUnlockWidgetManager::TickComponent`](https://github.com/Flat2VRStudios/RoboquestVR/blob/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2/Source/RoboQuest/Private/Component/UnlockWidgetManager.cpp#L99) is empty while the constructor enables ticking. Disable it. This is cleanup rather than a case-study root cause, but it is risk-free and reduces global tick registration/noise.",
+        "sourceId": "code"
+      },
+      {
+        "id": "implementation",
+        "type": "markdown",
+        "body": "## Implementation order and expected result\n\nImplement behind independent CVars so each saving is observable:\n\n- `rq.CPU.IdleSkillTicks=0/1`\n- `rq.CPU.AITickTiers=0/1`\n- `rq.CPU.TargetDetectionHz=72/36/18`\n- `rq.CPU.AnimSignificance=0/1`\n\nFirst ship the instrumentation CVar and owner-resolved export. Then test idle-skill gating, AI tiers, target detection, and animation in that order. Do not combine them in the first comparison: an aggregate win would hide simulation bugs and make rollback difficult.\n\nThe primary acceptance target is **≤10.5 ms active GT** in both Oasis and Purification II, leaving roughly 3.4 ms of GameThread margin inside 72 Hz before render/compositor pacing. Secondary targets are actor/component timer ≤3.0 ms, skinned mesh ≤0.60 ms, Blueprint events ≤0.45 ms, P99 ≤20 ms, and budget misses below 30% without worsening app GPU time.",
+        "sourceId": "actions"
+      },
+      {
+        "id": "action_table",
+        "type": "table",
+        "tableId": "action_plan",
+        "layout": "full"
+      },
+      {
+        "id": "capture_table",
+        "type": "table",
+        "tableId": "capture_plan",
+        "layout": "full"
+      },
+      {
+        "id": "render_contrast",
+        "type": "markdown",
+        "body": "## Hard views that are not primarily CPU problems\n\nThe deterministic dossier's worst static views are **Fields A** and **BuggedCity B**. Fields A runs at 58.6 FPS with 14.57 ms app GPU, 946 draws and 2.98 million indices, while Fields B reaches 72.5 FPS with 7.64 ms app GPU, 217 draws and 0.63 million indices. Active GameThread is almost unchanged: 5.290 versus 5.251 ms. That is a render/visibility/submission diagnosis, not a simulation diagnosis.\n\nBuggedCity B shows the same shape: 59.4 FPS, 14.82 ms app GPU and 1,136 draws versus 72.2 FPS, 10.20 ms and 266 draws in A; active GT rises only from 4.913 to 5.385 ms. Its direct Adreno stage capture is missing, so the exact GPU pass remains unresolved, but the CPU is not the main reason it misses 72 Hz.\n\nThis contrast is why the report does not recommend one global quality reduction. Use simulation/cadence fixes for live Oasis and Purification II; use view-local proxy, culling and material-section fixes for Fields A, BuggedCity B and the GPU-heavy Purification II A viewpoint.",
+        "sourceId": "frozen"
+      },
+      {
+        "id": "gpu_contrast_chart",
+        "type": "chart",
+        "chartId": "gpu_contrast",
+        "layout": "full"
+      },
+      {
+        "id": "active_fps_chart",
+        "type": "chart",
+        "chartId": "active_fps",
+        "layout": "full"
+      },
+      {
+        "id": "hitches",
+        "type": "markdown",
+        "body": "## Tail latency and hitches\n\nThe live campaign's worst frame is **329.09 ms in Road**. Oasis reaches **214.94 ms** and Purification II **281.89 ms**. These tails are user-visible and should be fixed, but they are not explained by the level-average CPU breakdown.\n\nThe supplied artifact's hover text classifies a CPU hitch from a nearby stored spike ≥35 ms and then speculates about streaming, GC or physics settle; a GPU hitch is identified from a threshold relative to the level GPU average. Those are useful UI hints, not trace-backed diagnoses. Recapture timestamp-aligned file/asset loading, memory/GC, physics and PSO events around the spikes. Separate cold and warm runs because cache/PSO behavior can disappear after first use.",
+        "sourceId": "limits"
+      },
+      {
+        "id": "robustness",
+        "type": "markdown",
+        "body": "## Limitations and robustness\n\n- The live HTML embeds 650 min/max frame buckets per level, up to 60 exact spikes, approximately 1 Hz VrApi samples and aggregate timer statistics—not every raw timing event.\n- CPU utilization and GPU utilization are headset-reported telemetry. They support sustained limiter classification but are not direct per-thread milliseconds.\n- Inclusive timer groups overlap. `Other = 0` in the source visualization is not a valid exclusive remainder.\n- The live artifact does not embed actor class names, tick inventories, AI/navigation/physics/GC/streaming counters, or a nested live call tree. Exact owner attribution stops at the world/actor/component family.\n- Frozen A/B captures deliberately disable AI and pause/dilate the world. They are excellent static-render controls and strong simulation-on/off evidence, but not an AI-only treatment.\n- The 13-level kill correlations are underpowered and confounded. They are used only to reject kill count as a sufficient explanation.\n- The supplied artifact self-asserts build/config matching details that are not independently proven inside the HTML. This report relies on directly inspectable metrics and the deterministic dossier's explicit capture commit.\n- The earlier combat report's 12 raw `.utrace` URLs currently return HTTP 404. City, Energy and Mines also mix same-second VrApi branches, and 11 of 12 levels contain exact duplicate event rows. Its Unreal aggregate timer pattern is useful corroboration, but its FPS/GPU/event aggregates are not merged into the newer campaign.\n- Device serial present in the supplied HTML was removed from all generated datasets and this report.",
+        "sourceId": "limits"
+      },
+      {
+        "id": "boundaries_table",
+        "type": "table",
+        "tableId": "boundaries",
+        "layout": "full"
+      },
+      {
+        "id": "downloads",
+        "type": "markdown",
+        "body": "## Download and reproducibility audit\n\nThe complete public manifest was downloaded before analysis: 120 assets totaling 9,286,595,959 bytes (8.65 GiB). All manifest entries were size- and SHA-256-verified after re-fetching one initially truncated RenderDoc file. Twelve Insights bundles were extracted into 192 files. The generated CSVs beside this report contain only reviewed/derived metrics; they do not redistribute the multi-gigabyte captures.",
+        "sourceId": "inventory"
+      },
+      {
+        "id": "inventory_block",
+        "type": "table",
+        "tableId": "inventory_table",
+        "layout": "full"
+      },
+      {
+        "id": "next_steps",
+        "type": "markdown",
+        "body": "## Next steps\n\n1. Add the P0 owner-resolved export and capture live Oasis/Purification II with the same bot route.\n2. Land the StatManager tick-shutdown fix with hit/DoT overlap tests; it is a concrete logic defect and does not need a performance hypothesis to justify correction.\n3. Implement idle-skill tick gating behind a CVar; validate event equality and target ≥0.7 ms active-GT saving.\n4. Batch compass icons at 30/20 Hz and measure component dispatch plus Slate RT deltas.\n5. Add coherent 72/36/24 Hz AI significance tiers; require active GT ≤10.5 ms with no movement, attack or pathing regression.\n6. Cache DetectTargets broad phase at 36 Hz; require ≤0.10 ms median and ≤27.8 ms target-acquisition latency.\n7. Tighten animation/widget significance; require skinned-mesh timer ≤0.60 ms.\n8. Only then optimize Purification II's view-local RHI/BasePass pressure and run the separate hitch campaign.\n\n### Further questions the next capture should answer\n\n- Which actor and component classes own the ~3 ms live-versus-frozen component-tick increase?\n- How many skill components tick while every active-work flag and queue is empty?\n- How many Near AI are full-cadence but neither attacking, targeted, visible nor pathing?\n- Which Blueprint ReceiveTick owners account for the ~0.75 ms family?\n- Are the worst >50 ms frames cold-only, and do they align with GC, async IO, physics creation or PSO events?\n\nThe current evidence is already sufficient to choose the **type and order of changes**. The one remaining step before claiming an exact class-level culprit is to preserve the live call-tree ownership that the current publishing pipeline discards.",
+        "sourceId": "actions"
+      }
+    ]
+  },
+  "snapshot": {
+    "version": 1,
+    "generatedAt": "2026-07-20T19:36:03+00:00",
+    "status": "ready",
+    "datasets": {
+      "overview": [
+        {
+          "live_levels": 13,
+          "live_frames": 277575,
+          "playtime_minutes": 71.4,
+          "weighted_mean_gt_ms": 15.25,
+          "weighted_fps": 65.6,
+          "weighted_budget_miss_pct": 66.0,
+          "worst_hitch_ms": 329.09,
+          "oasis_cpu_dom_rate": 0.9390000000000001,
+          "purii_cpu_dom_rate": 0.955,
+          "oasis_live_gap_ms": 8.446,
+          "purii_live_gap_ms": 7.788,
+          "download_assets": 120,
+          "download_gib": 8.65
+        }
+      ],
+      "live_levels": [
+        {
+          "level": "Road",
+          "duration_s": 328.3,
+          "frames": 23054,
+          "mean_gt_ms": 14.23,
+          "p50_gt_ms": 13.97,
+          "p99_gt_ms": 21.79,
+          "worst_gt_ms": 329.09,
+          "budget_miss_pct": 52.8,
+          "fps_avg": 70.7,
+          "fps_min": 49,
+          "app_gpu_ms": 9.94,
+          "active_gt_ms": 9.98,
+          "wait_ms": 4.244,
+          "cpu_util_pct": 78.1,
+          "gpu_util_pct": 80.6,
+          "cpu_dominant_pct": 10.0,
+          "gpu_dominant_pct": 22.7,
+          "both_saturated_pct": 2.1,
+          "world_tick_ms": 7.046,
+          "actor_ticks_ms": 3.537,
+          "skinned_mesh_ms": 0.598,
+          "blueprint_events_ms": 0.783,
+          "rhi_translate_ms": 5.426,
+          "init_views_ms": 2.116,
+          "base_pass_ms": 0.934,
+          "kills": 7,
+          "teleports": 30,
+          "diagnosis": "Balanced or transient"
+        },
+        {
+          "level": "Mines",
+          "duration_s": 333.0,
+          "frames": 21751,
+          "mean_gt_ms": 15.29,
+          "p50_gt_ms": 14.73,
+          "p99_gt_ms": 24.08,
+          "worst_gt_ms": 252.26,
+          "budget_miss_pct": 69.4,
+          "fps_avg": 65.5,
+          "fps_min": 2,
+          "app_gpu_ms": 10.82,
+          "active_gt_ms": 12.5,
+          "wait_ms": 2.792,
+          "cpu_util_pct": 82.6,
+          "gpu_util_pct": 80.0,
+          "cpu_dominant_pct": 17.8,
+          "gpu_dominant_pct": 9.3,
+          "both_saturated_pct": 4.8,
+          "world_tick_ms": 9.239,
+          "actor_ticks_ms": 4.642,
+          "skinned_mesh_ms": 1.288,
+          "blueprint_events_ms": 0.824,
+          "rhi_translate_ms": 5.962,
+          "init_views_ms": 2.349,
+          "base_pass_ms": 1.123,
+          "kills": 60,
+          "teleports": 0,
+          "diagnosis": "Balanced or transient"
+        },
+        {
+          "level": "Fields",
+          "duration_s": 330.9,
+          "frames": 21512,
+          "mean_gt_ms": 15.35,
+          "p50_gt_ms": 14.39,
+          "p99_gt_ms": 29.19,
+          "worst_gt_ms": 253.6,
+          "budget_miss_pct": 61.1,
+          "fps_avg": 57.9,
+          "fps_min": 14,
+          "app_gpu_ms": 6.76,
+          "active_gt_ms": 10.67,
+          "wait_ms": 4.675,
+          "cpu_util_pct": 84.2,
+          "gpu_util_pct": 82.5,
+          "cpu_dominant_pct": 27.4,
+          "gpu_dominant_pct": 23.8,
+          "both_saturated_pct": 20.2,
+          "world_tick_ms": 7.163,
+          "actor_ticks_ms": 3.305,
+          "skinned_mesh_ms": 0.665,
+          "blueprint_events_ms": 0.726,
+          "rhi_translate_ms": 6.004,
+          "init_views_ms": 2.335,
+          "base_pass_ms": 1.441,
+          "kills": 51,
+          "teleports": 0,
+          "diagnosis": "Balanced or transient"
+        },
+        {
+          "level": "Purification I",
+          "duration_s": 334.3,
+          "frames": 22607,
+          "mean_gt_ms": 14.77,
+          "p50_gt_ms": 14.29,
+          "p99_gt_ms": 23.63,
+          "worst_gt_ms": 238.28,
+          "budget_miss_pct": 60.0,
+          "fps_avg": 69.5,
+          "fps_min": 2,
+          "app_gpu_ms": 6.43,
+          "active_gt_ms": 10.91,
+          "wait_ms": 3.86,
+          "cpu_util_pct": 84.2,
+          "gpu_util_pct": 84.3,
+          "cpu_dominant_pct": 6.9,
+          "gpu_dominant_pct": 9.9,
+          "both_saturated_pct": 25.2,
+          "world_tick_ms": 7.609,
+          "actor_ticks_ms": 3.367,
+          "skinned_mesh_ms": 0.692,
+          "blueprint_events_ms": 0.881,
+          "rhi_translate_ms": 6.072,
+          "init_views_ms": 2.486,
+          "base_pass_ms": 1.436,
+          "kills": 39,
+          "teleports": 0,
+          "diagnosis": "Balanced or transient"
+        },
+        {
+          "level": "Energy / Electrical",
+          "duration_s": 330.8,
+          "frames": 17538,
+          "mean_gt_ms": 16.31,
+          "p50_gt_ms": 15.91,
+          "p99_gt_ms": 24.58,
+          "worst_gt_ms": 245.32,
+          "budget_miss_pct": 84.8,
+          "fps_avg": 60.8,
+          "fps_min": 1,
+          "app_gpu_ms": 11.11,
+          "active_gt_ms": 13.35,
+          "wait_ms": 2.967,
+          "cpu_util_pct": 84.7,
+          "gpu_util_pct": 76.8,
+          "cpu_dominant_pct": 50.9,
+          "gpu_dominant_pct": 1.4,
+          "both_saturated_pct": 5.3,
+          "world_tick_ms": 9.644,
+          "actor_ticks_ms": 4.275,
+          "skinned_mesh_ms": 0.932,
+          "blueprint_events_ms": 0.771,
+          "rhi_translate_ms": 6.579,
+          "init_views_ms": 2.708,
+          "base_pass_ms": 1.295,
+          "kills": 39,
+          "teleports": 25,
+          "diagnosis": "CPU pressure / mixed"
+        },
+        {
+          "level": "City",
+          "duration_s": 329.0,
+          "frames": 21983,
+          "mean_gt_ms": 14.95,
+          "p50_gt_ms": 14.44,
+          "p99_gt_ms": 23.68,
+          "worst_gt_ms": 227.2,
+          "budget_miss_pct": 64.3,
+          "fps_avg": 67.4,
+          "fps_min": 50,
+          "app_gpu_ms": 10.38,
+          "active_gt_ms": 11.39,
+          "wait_ms": 3.56,
+          "cpu_util_pct": 81.0,
+          "gpu_util_pct": 80.4,
+          "cpu_dominant_pct": 12.7,
+          "gpu_dominant_pct": 11.7,
+          "both_saturated_pct": 9.3,
+          "world_tick_ms": 7.884,
+          "actor_ticks_ms": 3.765,
+          "skinned_mesh_ms": 0.694,
+          "blueprint_events_ms": 0.745,
+          "rhi_translate_ms": 6.008,
+          "init_views_ms": 2.608,
+          "base_pass_ms": 1.484,
+          "kills": 27,
+          "teleports": 0,
+          "diagnosis": "Balanced or transient"
+        },
+        {
+          "level": "NASA",
+          "duration_s": 330.0,
+          "frames": 19960,
+          "mean_gt_ms": 16.52,
+          "p50_gt_ms": 16.03,
+          "p99_gt_ms": 25.02,
+          "worst_gt_ms": 321.14,
+          "budget_miss_pct": 80.5,
+          "fps_avg": 60.8,
+          "fps_min": 2,
+          "app_gpu_ms": 11.33,
+          "active_gt_ms": 13.45,
+          "wait_ms": 3.069,
+          "cpu_util_pct": 81.6,
+          "gpu_util_pct": 78.7,
+          "cpu_dominant_pct": 25.0,
+          "gpu_dominant_pct": 9.8,
+          "both_saturated_pct": 1.8,
+          "world_tick_ms": 9.554,
+          "actor_ticks_ms": 4.601,
+          "skinned_mesh_ms": 0.981,
+          "blueprint_events_ms": 0.767,
+          "rhi_translate_ms": 6.63,
+          "init_views_ms": 2.62,
+          "base_pass_ms": 1.437,
+          "kills": 18,
+          "teleports": 0,
+          "diagnosis": "Balanced or transient"
+        },
+        {
+          "level": "Bugged City",
+          "duration_s": 326.7,
+          "frames": 22595,
+          "mean_gt_ms": 14.44,
+          "p50_gt_ms": 14.07,
+          "p99_gt_ms": 22.97,
+          "worst_gt_ms": 248.47,
+          "budget_miss_pct": 55.7,
+          "fps_avg": 69.7,
+          "fps_min": 51,
+          "app_gpu_ms": 10.26,
+          "active_gt_ms": 10.31,
+          "wait_ms": 4.136,
+          "cpu_util_pct": 79.1,
+          "gpu_util_pct": 81.7,
+          "cpu_dominant_pct": 8.8,
+          "gpu_dominant_pct": 24.3,
+          "both_saturated_pct": 7.9,
+          "world_tick_ms": 7.149,
+          "actor_ticks_ms": 3.27,
+          "skinned_mesh_ms": 0.64,
+          "blueprint_events_ms": 0.725,
+          "rhi_translate_ms": 5.624,
+          "init_views_ms": 2.416,
+          "base_pass_ms": 1.329,
+          "kills": 51,
+          "teleports": 16,
+          "diagnosis": "Balanced or transient"
+        },
+        {
+          "level": "Electrical (Corrupt)",
+          "duration_s": 327.4,
+          "frames": 22792,
+          "mean_gt_ms": 14.35,
+          "p50_gt_ms": 14.06,
+          "p99_gt_ms": 22.12,
+          "worst_gt_ms": 214.29,
+          "budget_miss_pct": 55.6,
+          "fps_avg": 70.2,
+          "fps_min": 56,
+          "app_gpu_ms": 9.92,
+          "active_gt_ms": 10.7,
+          "wait_ms": 3.654,
+          "cpu_util_pct": 78.3,
+          "gpu_util_pct": 79.7,
+          "cpu_dominant_pct": 10.0,
+          "gpu_dominant_pct": 22.4,
+          "both_saturated_pct": 1.8,
+          "world_tick_ms": 7.543,
+          "actor_ticks_ms": 3.508,
+          "skinned_mesh_ms": 0.663,
+          "blueprint_events_ms": 0.628,
+          "rhi_translate_ms": 5.456,
+          "init_views_ms": 2.041,
+          "base_pass_ms": 1.155,
+          "kills": 73,
+          "teleports": 18,
+          "diagnosis": "Balanced or transient"
+        },
+        {
+          "level": "Canyon",
+          "duration_s": 326.8,
+          "frames": 22691,
+          "mean_gt_ms": 14.36,
+          "p50_gt_ms": 14.0,
+          "p99_gt_ms": 23.79,
+          "worst_gt_ms": 204.22,
+          "budget_miss_pct": 52.7,
+          "fps_avg": 70.0,
+          "fps_min": 40,
+          "app_gpu_ms": 10.0,
+          "active_gt_ms": 9.41,
+          "wait_ms": 4.952,
+          "cpu_util_pct": 89.2,
+          "gpu_util_pct": 79.3,
+          "cpu_dominant_pct": 59.9,
+          "gpu_dominant_pct": 0.0,
+          "both_saturated_pct": 7.1,
+          "world_tick_ms": 6.127,
+          "actor_ticks_ms": 2.696,
+          "skinned_mesh_ms": 0.541,
+          "blueprint_events_ms": 0.743,
+          "rhi_translate_ms": 5.041,
+          "init_views_ms": 2.097,
+          "base_pass_ms": 0.859,
+          "kills": 21,
+          "teleports": 29,
+          "diagnosis": "CPU pressure / mixed"
+        },
+        {
+          "level": "Oasis",
+          "duration_s": 331.1,
+          "frames": 20589,
+          "mean_gt_ms": 16.04,
+          "p50_gt_ms": 15.51,
+          "p99_gt_ms": 26.34,
+          "worst_gt_ms": 214.94,
+          "budget_miss_pct": 75.5,
+          "fps_avg": 62.5,
+          "fps_min": 3,
+          "app_gpu_ms": 10.78,
+          "active_gt_ms": 13.4,
+          "wait_ms": 2.639,
+          "cpu_util_pct": 94.7,
+          "gpu_util_pct": 77.8,
+          "cpu_dominant_pct": 93.9,
+          "gpu_dominant_pct": 0.0,
+          "both_saturated_pct": 2.6,
+          "world_tick_ms": 9.386,
+          "actor_ticks_ms": 4.119,
+          "skinned_mesh_ms": 0.905,
+          "blueprint_events_ms": 0.784,
+          "rhi_translate_ms": 6.277,
+          "init_views_ms": 2.605,
+          "base_pass_ms": 1.21,
+          "kills": 91,
+          "teleports": 0,
+          "diagnosis": "Sustained CPU-dominant"
+        },
+        {
+          "level": "Purification II",
+          "duration_s": 330.4,
+          "frames": 20261,
+          "mean_gt_ms": 16.26,
+          "p50_gt_ms": 15.75,
+          "p99_gt_ms": 26.97,
+          "worst_gt_ms": 281.89,
+          "budget_miss_pct": 77.2,
+          "fps_avg": 62.3,
+          "fps_min": 38,
+          "app_gpu_ms": 10.72,
+          "active_gt_ms": 12.89,
+          "wait_ms": 3.37,
+          "cpu_util_pct": 93.7,
+          "gpu_util_pct": 76.6,
+          "cpu_dominant_pct": 95.5,
+          "gpu_dominant_pct": 0.0,
+          "both_saturated_pct": 0.6,
+          "world_tick_ms": 8.944,
+          "actor_ticks_ms": 4.098,
+          "skinned_mesh_ms": 0.892,
+          "blueprint_events_ms": 0.724,
+          "rhi_translate_ms": 6.814,
+          "init_views_ms": 2.668,
+          "base_pass_ms": 1.617,
+          "kills": 23,
+          "teleports": 28,
+          "diagnosis": "Sustained CPU-dominant"
+        },
+        {
+          "level": "Moon",
+          "duration_s": 326.6,
+          "frames": 20242,
+          "mean_gt_ms": 16.11,
+          "p50_gt_ms": 15.56,
+          "p99_gt_ms": 26.51,
+          "worst_gt_ms": 254.7,
+          "budget_miss_pct": 77.8,
+          "fps_avg": 63.0,
+          "fps_min": 44,
+          "app_gpu_ms": 10.25,
+          "active_gt_ms": 13.05,
+          "wait_ms": 3.065,
+          "cpu_util_pct": 82.1,
+          "gpu_util_pct": 73.4,
+          "cpu_dominant_pct": 48.9,
+          "gpu_dominant_pct": 4.9,
+          "both_saturated_pct": 4.9,
+          "world_tick_ms": 9.449,
+          "actor_ticks_ms": 4.567,
+          "skinned_mesh_ms": 0.764,
+          "blueprint_events_ms": 0.743,
+          "rhi_translate_ms": 5.891,
+          "init_views_ms": 2.276,
+          "base_pass_ms": 1.09,
+          "kills": 10,
+          "teleports": 0,
+          "diagnosis": "CPU pressure / mixed"
+        }
+      ],
+      "utilization": [
+        {
+          "level": "Road",
+          "processor": "CPU",
+          "utilization_pct": 78.1
+        },
+        {
+          "level": "Road",
+          "processor": "GPU",
+          "utilization_pct": 80.6
+        },
+        {
+          "level": "Mines",
+          "processor": "CPU",
+          "utilization_pct": 82.6
+        },
+        {
+          "level": "Mines",
+          "processor": "GPU",
+          "utilization_pct": 80.0
+        },
+        {
+          "level": "Fields",
+          "processor": "CPU",
+          "utilization_pct": 84.2
+        },
+        {
+          "level": "Fields",
+          "processor": "GPU",
+          "utilization_pct": 82.5
+        },
+        {
+          "level": "Purification I",
+          "processor": "CPU",
+          "utilization_pct": 84.2
+        },
+        {
+          "level": "Purification I",
+          "processor": "GPU",
+          "utilization_pct": 84.3
+        },
+        {
+          "level": "Energy / Electrical",
+          "processor": "CPU",
+          "utilization_pct": 84.7
+        },
+        {
+          "level": "Energy / Electrical",
+          "processor": "GPU",
+          "utilization_pct": 76.8
+        },
+        {
+          "level": "City",
+          "processor": "CPU",
+          "utilization_pct": 81.0
+        },
+        {
+          "level": "City",
+          "processor": "GPU",
+          "utilization_pct": 80.4
+        },
+        {
+          "level": "NASA",
+          "processor": "CPU",
+          "utilization_pct": 81.6
+        },
+        {
+          "level": "NASA",
+          "processor": "GPU",
+          "utilization_pct": 78.7
+        },
+        {
+          "level": "Bugged City",
+          "processor": "CPU",
+          "utilization_pct": 79.1
+        },
+        {
+          "level": "Bugged City",
+          "processor": "GPU",
+          "utilization_pct": 81.7
+        },
+        {
+          "level": "Electrical (Corrupt)",
+          "processor": "CPU",
+          "utilization_pct": 78.3
+        },
+        {
+          "level": "Electrical (Corrupt)",
+          "processor": "GPU",
+          "utilization_pct": 79.7
+        },
+        {
+          "level": "Canyon",
+          "processor": "CPU",
+          "utilization_pct": 89.2
+        },
+        {
+          "level": "Canyon",
+          "processor": "GPU",
+          "utilization_pct": 79.3
+        },
+        {
+          "level": "Oasis",
+          "processor": "CPU",
+          "utilization_pct": 94.7
+        },
+        {
+          "level": "Oasis",
+          "processor": "GPU",
+          "utilization_pct": 77.8
+        },
+        {
+          "level": "Purification II",
+          "processor": "CPU",
+          "utilization_pct": 93.7
+        },
+        {
+          "level": "Purification II",
+          "processor": "GPU",
+          "utilization_pct": 76.6
+        },
+        {
+          "level": "Moon",
+          "processor": "CPU",
+          "utilization_pct": 82.1
+        },
+        {
+          "level": "Moon",
+          "processor": "GPU",
+          "utilization_pct": 73.4
+        }
+      ],
+      "case_studies": [
+        {
+          "level": "Oasis",
+          "live_active_gt_ms": 13.4,
+          "frozen_active_gt_ms": 4.954,
+          "live_minus_frozen_ms": 8.446,
+          "live_cpu_util_pct": 94.7,
+          "live_gpu_util_pct": 77.8,
+          "cpu_dominant_pct": 93.9,
+          "live_actor_ticks_ms": 4.119,
+          "live_world_tick_ms": 9.386,
+          "live_skinned_mesh_ms": 0.905,
+          "live_blueprint_ms": 0.784,
+          "live_app_gpu_ms": 10.78,
+          "frozen_app_gpu_ms": 9.585,
+          "budget_miss_pct": 75.5,
+          "p99_gt_ms": 26.34,
+          "kills": 91,
+          "teleports": 0,
+          "interpretation": "Live simulation adds the dominant CPU cost; static view rendering alone does not explain it."
+        },
+        {
+          "level": "Purification II",
+          "live_active_gt_ms": 12.89,
+          "frozen_active_gt_ms": 5.103,
+          "live_minus_frozen_ms": 7.788,
+          "live_cpu_util_pct": 93.7,
+          "live_gpu_util_pct": 76.6,
+          "cpu_dominant_pct": 95.5,
+          "live_actor_ticks_ms": 4.098,
+          "live_world_tick_ms": 8.944,
+          "live_skinned_mesh_ms": 0.892,
+          "live_blueprint_ms": 0.724,
+          "live_app_gpu_ms": 10.72,
+          "frozen_app_gpu_ms": 10.73,
+          "budget_miss_pct": 77.2,
+          "p99_gt_ms": 26.97,
+          "kills": 23,
+          "teleports": 28,
+          "interpretation": "Live simulation adds the dominant CPU cost; static view rendering alone does not explain it."
+        }
+      ],
+      "active_conditions": [
+        {
+          "level_condition": "Oasis — live combat",
+          "level": "Oasis",
+          "condition": "Live combat",
+          "active_gt_ms": 13.4
+        },
+        {
+          "level_condition": "Oasis — frozen A",
+          "level": "Oasis",
+          "condition": "Frozen control",
+          "active_gt_ms": 4.816
+        },
+        {
+          "level_condition": "Oasis — frozen B",
+          "level": "Oasis",
+          "condition": "Frozen control",
+          "active_gt_ms": 5.093
+        },
+        {
+          "level_condition": "Purification II — live combat",
+          "level": "Purification II",
+          "condition": "Live combat",
+          "active_gt_ms": 12.89
+        },
+        {
+          "level_condition": "Purification II — frozen A",
+          "level": "Purification II",
+          "condition": "Frozen control",
+          "active_gt_ms": 5.215
+        },
+        {
+          "level_condition": "Purification II — frozen B",
+          "level": "Purification II",
+          "condition": "Frozen control",
+          "active_gt_ms": 4.99
+        }
+      ],
+      "inclusive_timers": [
+        {
+          "level": "Oasis",
+          "timer": "UWorld::Tick",
+          "inclusive_ms": 9.386
+        },
+        {
+          "level": "Oasis",
+          "timer": "Actor/component ticks",
+          "inclusive_ms": 4.119
+        },
+        {
+          "level": "Oasis",
+          "timer": "Skinned mesh",
+          "inclusive_ms": 0.905
+        },
+        {
+          "level": "Oasis",
+          "timer": "Blueprint events",
+          "inclusive_ms": 0.784
+        },
+        {
+          "level": "Purification II",
+          "timer": "UWorld::Tick",
+          "inclusive_ms": 8.944
+        },
+        {
+          "level": "Purification II",
+          "timer": "Actor/component ticks",
+          "inclusive_ms": 4.098
+        },
+        {
+          "level": "Purification II",
+          "timer": "Skinned mesh",
+          "inclusive_ms": 0.892
+        },
+        {
+          "level": "Purification II",
+          "timer": "Blueprint events",
+          "inclusive_ms": 0.724
+        },
+        {
+          "level": "Moon",
+          "timer": "UWorld::Tick",
+          "inclusive_ms": 9.449
+        },
+        {
+          "level": "Moon",
+          "timer": "Actor/component ticks",
+          "inclusive_ms": 4.567
+        },
+        {
+          "level": "Moon",
+          "timer": "Skinned mesh",
+          "inclusive_ms": 0.764
+        },
+        {
+          "level": "Moon",
+          "timer": "Blueprint events",
+          "inclusive_ms": 0.743
+        }
+      ],
+      "frozen_controls": [
+        {
+          "viewpoint": "Oasis A",
+          "fps": 72.5,
+          "active_gt_ms": 4.816,
+          "wait_ms": 9.03,
+          "app_gpu_ms": 9.17,
+          "component_tick_calls_per_frame": 20.0,
+          "component_tick_ms_per_frame": 1.063,
+          "detect_targets_ms_per_frame": 0.176,
+          "draws": 134,
+          "indices": 384570
+        },
+        {
+          "viewpoint": "Oasis B",
+          "fps": 71.8,
+          "active_gt_ms": 5.093,
+          "wait_ms": 8.895,
+          "app_gpu_ms": 10.0,
+          "component_tick_calls_per_frame": 21.31,
+          "component_tick_ms_per_frame": 1.193,
+          "detect_targets_ms_per_frame": 0.18,
+          "draws": 169,
+          "indices": 571254
+        },
+        {
+          "viewpoint": "Purification_Water_1 A",
+          "fps": 67.8,
+          "active_gt_ms": 5.215,
+          "wait_ms": 9.627,
+          "app_gpu_ms": 12.61,
+          "component_tick_calls_per_frame": 20.0,
+          "component_tick_ms_per_frame": 1.164,
+          "detect_targets_ms_per_frame": 0.197,
+          "draws": 1050,
+          "indices": 2056650
+        },
+        {
+          "viewpoint": "Purification_Water_1 B",
+          "fps": 72.5,
+          "active_gt_ms": 4.99,
+          "wait_ms": 8.858,
+          "app_gpu_ms": 8.85,
+          "component_tick_calls_per_frame": 21.68,
+          "component_tick_ms_per_frame": 1.121,
+          "detect_targets_ms_per_frame": 0.19,
+          "draws": 391,
+          "indices": 757260
+        }
+      ],
+      "gpu_contrasts": [
+        {
+          "viewpoint": "Fields A",
+          "fps": 58.6,
+          "active_gt_ms": 5.29,
+          "app_gpu_ms": 14.57,
+          "draws": 946,
+          "indices": 2976148,
+          "diagnosis": "GPU + CPU/pacing"
+        },
+        {
+          "viewpoint": "Fields B",
+          "fps": 72.5,
+          "active_gt_ms": 5.251,
+          "app_gpu_ms": 7.64,
+          "draws": 217,
+          "indices": 632850,
+          "diagnosis": "Meets 72 Hz sample"
+        },
+        {
+          "viewpoint": "BuggedCity A",
+          "fps": 72.2,
+          "active_gt_ms": 4.913,
+          "app_gpu_ms": 10.2,
+          "draws": 266,
+          "indices": 212144,
+          "diagnosis": "Meets 72 Hz sample"
+        },
+        {
+          "viewpoint": "BuggedCity B",
+          "fps": 59.4,
+          "active_gt_ms": 5.385,
+          "app_gpu_ms": 14.82,
+          "draws": 1136,
+          "indices": 1533950,
+          "diagnosis": "GPU + CPU/pacing"
+        }
+      ],
+      "historical_combat": [
+        {
+          "level": "City",
+          "campaign": "Earlier combat",
+          "fps_avg": 63.4,
+          "fps_min": 31.0,
+          "app_gpu_ms": 7.09,
+          "gt_avg_ms": 18.74,
+          "active_gt_ms": 15.19,
+          "p99_gt_ms": 29.6,
+          "worst_gt_ms": 291.5,
+          "budget_miss_pct": 92.8,
+          "kills": 30.0,
+          "teleports": 0.0
+        },
+        {
+          "level": "Energy_Electrical",
+          "campaign": "Earlier combat",
+          "fps_avg": 65.1,
+          "fps_min": 40.0,
+          "app_gpu_ms": 6.81,
+          "gt_avg_ms": 17.53,
+          "active_gt_ms": 14.1,
+          "p99_gt_ms": 27.6,
+          "worst_gt_ms": 237.4,
+          "budget_miss_pct": 88.2,
+          "kills": 42.0,
+          "teleports": 0.0
+        },
+        {
+          "level": "Mines",
+          "campaign": "Earlier combat",
+          "fps_avg": 69.1,
+          "fps_min": 1.0,
+          "app_gpu_ms": 6.96,
+          "gt_avg_ms": 16.88,
+          "active_gt_ms": 13.29,
+          "p99_gt_ms": 33.9,
+          "worst_gt_ms": 252.3,
+          "budget_miss_pct": 72.7,
+          "kills": 68.0,
+          "teleports": 0.0
+        },
+        {
+          "level": "Moon",
+          "campaign": "Earlier combat",
+          "fps_avg": 61.4,
+          "fps_min": 42.0,
+          "app_gpu_ms": 8.98,
+          "gt_avg_ms": 16.52,
+          "active_gt_ms": 13.06,
+          "p99_gt_ms": 24.5,
+          "worst_gt_ms": 241.7,
+          "budget_miss_pct": 83.5,
+          "kills": 10.0,
+          "teleports": 0.0
+        },
+        {
+          "level": "Nasa",
+          "campaign": "Earlier combat",
+          "fps_avg": 62.3,
+          "fps_min": 47.0,
+          "app_gpu_ms": 9.04,
+          "gt_avg_ms": 16.19,
+          "active_gt_ms": 12.43,
+          "p99_gt_ms": 23.5,
+          "worst_gt_ms": 262.4,
+          "budget_miss_pct": 82.6,
+          "kills": 0.0,
+          "teleports": 32.0
+        },
+        {
+          "level": "BuggedCity",
+          "campaign": "Earlier combat",
+          "fps_avg": 63.2,
+          "fps_min": 42.0,
+          "app_gpu_ms": 10.51,
+          "gt_avg_ms": 15.99,
+          "active_gt_ms": 12.34,
+          "p99_gt_ms": 23.8,
+          "worst_gt_ms": 289.5,
+          "budget_miss_pct": 85.0,
+          "kills": 4.0,
+          "teleports": 0.0
+        },
+        {
+          "level": "Fields",
+          "campaign": "Earlier combat",
+          "fps_avg": 67.0,
+          "fps_min": 38.0,
+          "app_gpu_ms": 9.62,
+          "gt_avg_ms": 15.55,
+          "active_gt_ms": 11.5,
+          "p99_gt_ms": 27.1,
+          "worst_gt_ms": 10481.5,
+          "budget_miss_pct": 60.6,
+          "kills": 112.0,
+          "teleports": 20.0
+        },
+        {
+          "level": "Oasis",
+          "campaign": "Earlier combat",
+          "fps_avg": 68.3,
+          "fps_min": 46.0,
+          "app_gpu_ms": 8.74,
+          "gt_avg_ms": 14.81,
+          "active_gt_ms": 11.49,
+          "p99_gt_ms": 24.1,
+          "worst_gt_ms": 232.2,
+          "budget_miss_pct": 61.8,
+          "kills": 0.0,
+          "teleports": 0.0
+        },
+        {
+          "level": "Purification_Water_1",
+          "campaign": "Earlier combat",
+          "fps_avg": 66.2,
+          "fps_min": 46.0,
+          "app_gpu_ms": 8.9,
+          "gt_avg_ms": 15.21,
+          "active_gt_ms": 11.07,
+          "p99_gt_ms": 24.2,
+          "worst_gt_ms": 257.6,
+          "budget_miss_pct": 64.6,
+          "kills": 19.0,
+          "teleports": 0.0
+        },
+        {
+          "level": "Road_1",
+          "campaign": "Earlier combat",
+          "fps_avg": 70.0,
+          "fps_min": 55.0,
+          "app_gpu_ms": 8.44,
+          "gt_avg_ms": 14.36,
+          "active_gt_ms": 10.14,
+          "p99_gt_ms": 23.8,
+          "worst_gt_ms": 268.2,
+          "budget_miss_pct": 53.0,
+          "kills": 0.0,
+          "teleports": 0.0
+        },
+        {
+          "level": "Purification_Water_0",
+          "campaign": "Earlier combat",
+          "fps_avg": 69.3,
+          "fps_min": 1.0,
+          "app_gpu_ms": 8.1,
+          "gt_avg_ms": 14.37,
+          "active_gt_ms": 9.21,
+          "p99_gt_ms": 24.4,
+          "worst_gt_ms": 68.1,
+          "budget_miss_pct": 53.1,
+          "kills": 48.0,
+          "teleports": 0.0
+        },
+        {
+          "level": "Canyon",
+          "campaign": "Earlier combat",
+          "fps_avg": 71.7,
+          "fps_min": 51.0,
+          "app_gpu_ms": 8.1,
+          "gt_avg_ms": 14.03,
+          "active_gt_ms": 8.07,
+          "p99_gt_ms": 19.3,
+          "worst_gt_ms": 230.7,
+          "budget_miss_pct": 49.6,
+          "kills": 24.0,
+          "teleports": 0.0
+        }
+      ],
+      "historical_timers": [
+        {
+          "level": "City",
+          "timer": "UWorld tick",
+          "inclusive_ms_per_frame": 10.44,
+          "calls_per_frame": 1.0
+        },
+        {
+          "level": "City",
+          "timer": "Component ticks",
+          "inclusive_ms_per_frame": 4.83,
+          "calls_per_frame": 130.1
+        },
+        {
+          "level": "City",
+          "timer": "Skinned mesh (animation)",
+          "inclusive_ms_per_frame": 0.89,
+          "calls_per_frame": 12.9
+        },
+        {
+          "level": "City",
+          "timer": "Blueprint ReceiveTick",
+          "inclusive_ms_per_frame": 0.83,
+          "calls_per_frame": 40.5
+        },
+        {
+          "level": "Energy_Electrical",
+          "timer": "UWorld tick",
+          "inclusive_ms_per_frame": 9.95,
+          "calls_per_frame": 1.0
+        },
+        {
+          "level": "Energy_Electrical",
+          "timer": "Component ticks",
+          "inclusive_ms_per_frame": 4.5,
+          "calls_per_frame": 132.9
+        },
+        {
+          "level": "Energy_Electrical",
+          "timer": "Skinned mesh (animation)",
+          "inclusive_ms_per_frame": 1.02,
+          "calls_per_frame": 13.1
+        },
+        {
+          "level": "Energy_Electrical",
+          "timer": "Blueprint ReceiveTick",
+          "inclusive_ms_per_frame": 0.76,
+          "calls_per_frame": 38.7
+        },
+        {
+          "level": "Mines",
+          "timer": "UWorld tick",
+          "inclusive_ms_per_frame": 9.56,
+          "calls_per_frame": 1.0
+        },
+        {
+          "level": "Mines",
+          "timer": "Component ticks",
+          "inclusive_ms_per_frame": 4.59,
+          "calls_per_frame": 134.4
+        },
+        {
+          "level": "Mines",
+          "timer": "Skinned mesh (animation)",
+          "inclusive_ms_per_frame": 0.94,
+          "calls_per_frame": 27.3
+        },
+        {
+          "level": "Mines",
+          "timer": "Blueprint ReceiveTick",
+          "inclusive_ms_per_frame": 0.8,
+          "calls_per_frame": 42.9
+        },
+        {
+          "level": "Moon",
+          "timer": "UWorld tick",
+          "inclusive_ms_per_frame": 9.36,
+          "calls_per_frame": 1.0
+        },
+        {
+          "level": "Moon",
+          "timer": "Component ticks",
+          "inclusive_ms_per_frame": 4.59,
+          "calls_per_frame": 119.6
+        },
+        {
+          "level": "Moon",
+          "timer": "Skinned mesh (animation)",
+          "inclusive_ms_per_frame": 0.81,
+          "calls_per_frame": 13.4
+        },
+        {
+          "level": "Moon",
+          "timer": "Blueprint ReceiveTick",
+          "inclusive_ms_per_frame": 0.74,
+          "calls_per_frame": 40.9
+        },
+        {
+          "level": "Nasa",
+          "timer": "UWorld tick",
+          "inclusive_ms_per_frame": 8.83,
+          "calls_per_frame": 1.0
+        },
+        {
+          "level": "Nasa",
+          "timer": "Component ticks",
+          "inclusive_ms_per_frame": 4.5,
+          "calls_per_frame": 127.5
+        },
+        {
+          "level": "Nasa",
+          "timer": "Skinned mesh (animation)",
+          "inclusive_ms_per_frame": 0.9,
+          "calls_per_frame": 14.7
+        },
+        {
+          "level": "Nasa",
+          "timer": "Blueprint ReceiveTick",
+          "inclusive_ms_per_frame": 0.66,
+          "calls_per_frame": 47.5
+        }
+      ],
+      "historical_quality": [
+        {
+          "level": "BuggedCity",
+          "vrapi_points": 332,
+          "duplicate_vrapi_timestamps": 0,
+          "scale_factor_values": "0.98",
+          "duplicate_event_rows": 0,
+          "unique_kill_signatures": 4,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "Canyon",
+          "vrapi_points": 332,
+          "duplicate_vrapi_timestamps": 0,
+          "scale_factor_values": "0.98",
+          "duplicate_event_rows": 122,
+          "unique_kill_signatures": 24,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "City",
+          "vrapi_points": 662,
+          "duplicate_vrapi_timestamps": 331,
+          "scale_factor_values": "0.98;1.0",
+          "duplicate_event_rows": 35,
+          "unique_kill_signatures": 30,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "Energy_Electrical",
+          "vrapi_points": 658,
+          "duplicate_vrapi_timestamps": 329,
+          "scale_factor_values": "0.89;0.91;0.98;1.0",
+          "duplicate_event_rows": 80,
+          "unique_kill_signatures": 42,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "Fields",
+          "vrapi_points": 320,
+          "duplicate_vrapi_timestamps": 3,
+          "scale_factor_values": "0.0;0.3;0.98",
+          "duplicate_event_rows": 182,
+          "unique_kill_signatures": 56,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "Mines",
+          "vrapi_points": 354,
+          "duplicate_vrapi_timestamps": 111,
+          "scale_factor_values": "0.0;0.98;1.0",
+          "duplicate_event_rows": 159,
+          "unique_kill_signatures": 42,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "Moon",
+          "vrapi_points": 333,
+          "duplicate_vrapi_timestamps": 0,
+          "scale_factor_values": "0.98",
+          "duplicate_event_rows": 201,
+          "unique_kill_signatures": 10,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "Nasa",
+          "vrapi_points": 331,
+          "duplicate_vrapi_timestamps": 0,
+          "scale_factor_values": "0.98",
+          "duplicate_event_rows": 3,
+          "unique_kill_signatures": 0,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "Oasis",
+          "vrapi_points": 329,
+          "duplicate_vrapi_timestamps": 0,
+          "scale_factor_values": "0.98",
+          "duplicate_event_rows": 341,
+          "unique_kill_signatures": 0,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "Purification_Water_0",
+          "vrapi_points": 335,
+          "duplicate_vrapi_timestamps": 4,
+          "scale_factor_values": "0.0;0.98;1.0",
+          "duplicate_event_rows": 50,
+          "unique_kill_signatures": 24,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "Purification_Water_1",
+          "vrapi_points": 333,
+          "duplicate_vrapi_timestamps": 0,
+          "scale_factor_values": "0.98",
+          "duplicate_event_rows": 9,
+          "unique_kill_signatures": 19,
+          "raw_trace_status": "HTTP 404"
+        },
+        {
+          "level": "Road_1",
+          "vrapi_points": 329,
+          "duplicate_vrapi_timestamps": 0,
+          "scale_factor_values": "0.98",
+          "duplicate_event_rows": 14,
+          "unique_kill_signatures": 0,
+          "raw_trace_status": "HTTP 404"
+        }
+      ],
+      "actions": [
+        {
+          "priority": "P0 — before tuning",
+          "change": "Export owner-resolved live call trees and tick inventories",
+          "exact_area": "combat_analyze.py plus Oasis/Purification II combat runs",
+          "why": "Current data stops at inclusive UWorld/component/animation/Blueprint timers; it cannot name the actor class owning the remaining milliseconds.",
+          "implementation": "Keep the full gt_*.csv outputs, add object/class-labelled TRACE_CPUPROFILER scopes around AI Tick, visibility, skill TickComponent, movement and player target detection; capture `dumpticks grouped` at 60 s intervals.",
+          "target": "At least 90% of active GT assigned to named exclusive or parent/child-resolved owners.",
+          "ship_gate": "Do not claim a one-class root cause until owner-resolved evidence exists."
+        },
+        {
+          "priority": "P0 — safe fix",
+          "change": "Repair the StatManager tick-shutdown predicate",
+          "exact_area": "UAStatManager::CanStopTick, OnRemoveDot and hit-feedback completion",
+          "why": "CanStopTick currently returns bHitFeedbackAlive after proving all DoT maps are empty. The caller disables tick only when that function is true, so completed hit feedback (alive=false) can never stop the component; final DoT removal also never retries shutdown.",
+          "implementation": "Return `!bHitFeedbackAlive && !bHitFeedbackTick` after the DoT loop. Add a shared TryStopTick() and call it after the final DoT removal and after hit-feedback completion.",
+          "target": "Zero StatManager components ticking with no DoT, hit-feedback fade or other timed work pending.",
+          "ship_gate": "Automated hit-only, DoT-only, overlapping hit+DoT and time-dilation tests; tick always stops after the final state clears."
+        },
+        {
+          "priority": "P1",
+          "change": "Stop ticking idle AI skills",
+          "exact_area": "UASkill::TickComponent / UAAISkill::TickComponent; ACharacter_AI::SetAIActivated",
+          "why": "Activating an AI enables every skill component, while the base and AI skill ticks mostly poll booleans and empty queues. That fan-out scales with active enemy count and is consistent with the ~4.1 ms live actor/component timer.",
+          "implementation": "Add RefreshTickEnabled() and enable a skill tick only while cooldown, firerate, duration, multihit, FX queue, multiraycast, recovery, preshoot or delayed-area work is active. Re-enable at each state transition; disable immediately when the last state clears.",
+          "target": "Reduce component-tick calls by at least 30%; historical City target ≤60 calls/frame and ≤2.5 ms component tick; save 0.7–1.5 ms active GT without fire-rate/cooldown drift.",
+          "ship_gate": "Deterministic combat seed: identical shots, damage, kills and cooldown completion within one frame."
+        },
+        {
+          "priority": "P1",
+          "change": "Batch enemy compass updates instead of ticking one component per icon",
+          "exact_area": "UACompassLocator → AAPlayerController → UCompassWidget::UpdateIconPosition",
+          "why": "Seeking/attacking enemies register compass locators that tick every frame. Each icon update repeats distance/projection/transform/curve/UMG setter work, matching the combat run's high component-dispatch count and ~1.0–1.3 ms Slate RenderThread cost.",
+          "implementation": "Replace per-locator ticks with one controller/widget registry updated at 30 Hz for central threats and 20 Hz for distant/offscreen icons. Cache camera transform and viewport once per batch, early-out by squared distance, and skip UMG setters unless value deltas exceed a visual threshold.",
+          "target": "Remove one tick function per registered compass icon; cut compass CPU ≥50% and lower Slate RenderThread by ≥0.3 ms in historical-City-equivalent combat.",
+          "ship_gate": "No visible judder during head turns; offscreen warnings react within 50 ms; icons unregister correctly on death/travel."
+        },
+        {
+          "priority": "P1",
+          "change": "Add significance-based AI tick tiers",
+          "exact_area": "ACharacter_AI dynamic-loading state, controller, brain and path-following activation",
+          "why": "The existing Near/Far switch is binary: Near enables actor, controller, brain, path following and skills at full cadence. Oasis and Purification II remain CPU-dominant even with very different kill counts.",
+          "implementation": "Keep bosses, the current attacker/target and enemies within 1,500 uu at 72 Hz; update non-attacking visible Near AI at 36 Hz; update off-axis or occluded Near AI at 24 Hz; leave Far AI disabled as today. Stagger phase offsets by UniqueID.",
+          "target": "Actor/component inclusive timer ≤3.0 ms and active GT ≤10.5 ms in both case studies.",
+          "ship_gate": "No navigation overshoot, delayed attacks, hit-regression or animation/root-motion divergence in replayed combat."
+        },
+        {
+          "priority": "P1",
+          "change": "Make player target detection fixed-rate and cache the broad phase",
+          "exact_area": "AAPlayerController::PreProcessInput → ACharacter_Player::DetectTargets",
+          "why": "DetectTargets runs every frame and performs a capsule sweep, per-cone sorting, per-impact visibility traces and two crosshair raycasts. Frozen controls already spend ~0.18–0.20 ms/frame before live enemy density.",
+          "implementation": "Run the broad-phase sweep at 36 Hz (18 Hz when no candidate is nearby), reuse candidates between sweeps, and retain a cheap per-frame ray only for the currently selected target. Avoid sorting all hits; partial-select the closest candidate per cone.",
+          "target": "STAT_DetectTargets ≤0.10 ms median and ≤0.25 ms P99 in live Oasis/Purification II.",
+          "ship_gate": "Target acquisition latency ≤27.8 ms and no aim-assist/focus regressions under dual-wield and teleport tests."
+        },
+        {
+          "priority": "P1",
+          "change": "Tighten animation and world-widget significance",
+          "exact_area": "ACharacter_AI mesh policy, GraphicsSettingsSubsystem and health-bar widget components",
+          "why": "Skinned-mesh work is ~0.89–0.91 ms/frame in both CPU cases. Existing URO and 20 Hz widget logic are directionally correct but still leave nearly a millisecond of animation work.",
+          "implementation": "Preserve full-rate pose/bone refresh only for rendered combatants and the local player; use URO 2/3/4-frame rates by screen size for other enemies; disable health-bar widget tick/render targets when occluded or outside display range rather than merely running at 20 Hz.",
+          "target": "Skinned-mesh inclusive timer ≤0.60 ms and zero hidden health-bar render-target updates.",
+          "ship_gate": "No visible pose pops, stale hit bones, floating bars or root-motion divergence in headset capture."
+        },
+        {
+          "priority": "P2",
+          "change": "Convert the hottest Blueprint ReceiveTick owners after they are named",
+          "exact_area": "Blueprint Events / ReceiveTick owners from the P0 call-tree export",
+          "why": "Blueprint events are ~0.72–0.78 ms/frame, but the artifact does not identify which Blueprint classes own them.",
+          "implementation": "For the top two owners, replace Tick with delegates/timers, set explicit tick intervals, or move the stable hot loop to C++. Do not bulk-convert Blueprints without owner evidence.",
+          "target": "Blueprint event timer ≤0.45 ms in both levels.",
+          "ship_gate": "Same event counts and state transitions in an instrumented before/after replay."
+        },
+        {
+          "priority": "P2 — Purification II",
+          "change": "Reduce CPU render submission after GameThread work",
+          "exact_area": "visibility/proxy policy for Purification_Water_1; RHI Translate, InitViews and BasePass",
+          "why": "Purification II also carries the highest live RHI Translate value (6.814 ms) and 1.617 ms BasePass among the live levels. Frozen spot A is GPU-heavy while spot B is healthy, so this is view-local rather than a reason to globally lower resolution.",
+          "implementation": "Use the A/B view to tighten HISM/proxy coverage, cull occluded vegetation/room pieces and reduce material sections for the visible high-draw cluster. Preserve the existing eye resolution until CPU work is fixed.",
+          "target": "RHI Translate −1.0 ms and BasePass −0.4 ms in the problematic view; no regression in spot B.",
+          "ship_gate": "72 Hz at both deterministic spots and unchanged gameplay collision/navigation."
+        },
+        {
+          "priority": "P2 — hitches",
+          "change": "Diagnose hitches as a separate root-cause track",
+          "exact_area": "frames above 35 ms with load-time, GC, physics and PSO trace channels",
+          "why": "Oasis reaches 214.94 ms and Purification II 281.89 ms, but the published hover explanations are heuristics, not per-frame call stacks.",
+          "implementation": "Recapture the worst 10 seconds with file/asset loading, memory/GC, physics and PSO events; correlate each hitch timestamp before changing streaming pools or caches.",
+          "target": "P99 ≤20 ms and zero frames above 50 ms after a root-cause-specific fix.",
+          "ship_gate": "Three cold boots and three warm boots; report cold/warm separately."
+        }
+      ],
+      "capture_plan": [
+        {
+          "step": 1,
+          "capture": "Oasis and Purification II live combat, same seed and route",
+          "required_signal": "GameThread call tree with actor/component class ownership; dumpticks grouped; active AI/skill/component counts",
+          "decision": "Ranks the exact owner of the ~7.8–8.4 ms live-minus-frozen gap."
+        },
+        {
+          "step": 2,
+          "capture": "A/B CVar: idle-skill tick gating only",
+          "required_signal": "Active GT, component tick calls/frame, damage/shot/cooldown event equality",
+          "decision": "Ships only if it saves ≥0.7 ms without simulation drift."
+        },
+        {
+          "step": 3,
+          "capture": "A/B CVar: 72/36/24 Hz AI significance tiers",
+          "required_signal": "Active GT, ActorTicks, movement/attack latency, path failures and damage",
+          "decision": "Choose the least aggressive tier meeting the 10.5 ms active-GT target."
+        },
+        {
+          "step": 4,
+          "capture": "A/B CVar: DetectTargets 72 Hz versus 36 Hz cached",
+          "required_signal": "STAT_DetectTargets median/P99, acquisition latency and wrong-target count",
+          "decision": "Keep if median ≤0.10 ms and acquisition remains within 27.8 ms."
+        },
+        {
+          "step": 5,
+          "capture": "Cold/warm hitch capture",
+          "required_signal": "Per-hitch GC, file IO, async load, physics and PSO events",
+          "decision": "Assign each >50 ms frame to a measured subsystem before remediation."
+        }
+      ],
+      "limitations": [
+        {
+          "claim": "Oasis and Purification II are sustained CPU-dominant in live combat.",
+          "strength": "High",
+          "support": "CPU/GPU utilization lead, 93.9–95.5% CPU-dominant samples, 12.89–13.40 ms active GT and much lower frozen active GT.",
+          "boundary": "Utilization is ~1 Hz and does not identify the owner of each individual frame."
+        },
+        {
+          "claim": "Live world/actor simulation is the primary added cost.",
+          "strength": "High at subsystem level",
+          "support": "Frozen controls explicitly disable AI and pause/dilate the world; active GT falls by 7.79–8.45 ms while static rendering remains present.",
+          "boundary": "The control changes several simulation dimensions together, so it is not a single-variable AI-only experiment."
+        },
+        {
+          "claim": "Actor/component ticks are the largest actionable named subcategory.",
+          "strength": "Medium-high",
+          "support": "Published inclusive timer is ~4.1 ms in both cases versus roughly 1.0–1.2 ms/frame in frozen controls.",
+          "boundary": "Inclusive timer families overlap; they must not be summed or treated as exclusive percentages."
+        },
+        {
+          "claim": "A specific AI class, Blueprint, GC event or physics task is the exact root owner.",
+          "strength": "Not established",
+          "support": "No owner-resolved live call tree is embedded in the artifact.",
+          "boundary": "Requires the P0 focused capture; the report deliberately does not invent a class name."
+        },
+        {
+          "claim": "The 200–330 ms hitches are streaming, GC, physics or PSO stalls.",
+          "strength": "Not established",
+          "support": "The report UI labels are threshold-based heuristics.",
+          "boundary": "Requires timestamp-aligned trace channels and cold/warm separation."
+        },
+        {
+          "claim": "Kill count alone explains active CPU time.",
+          "strength": "Contradicted as a sufficient explanation",
+          "support": "Purification II has 23 kills and Oasis 91 yet nearly identical CPU pressure; Moon has only 10 kills and 13.05 ms active GT.",
+          "boundary": "Thirteen level aggregates are confounded and too few for causal regression."
+        }
+      ],
+      "inventory_rows": [
+        {
+          "collection": "Published download manifest",
+          "assets": 120,
+          "bytes": 9286595959,
+          "gib": 8.65,
+          "local_status": "120/120 size- and SHA-256-verified",
+          "contents": "24 RenderDoc captures, 12 Insights bundles, GPU-stage logs, images, logs, JSON and report artifacts"
+        },
+        {
+          "collection": "Extracted deterministic Insights bundles",
+          "assets": 12,
+          "bytes": null,
+          "gib": 0.73,
+          "local_status": "192 extracted files",
+          "contents": "24 utrace/pftrace viewpoints plus timer CSV exports and screenshots"
+        },
+        {
+          "collection": "Claude live-combat artifact",
+          "assets": 1,
+          "bytes": 1609411,
+          "gib": 0.0015,
+          "local_status": "Direct self-contained HTML downloaded; device serial redacted downstream",
+          "contents": "13 level aggregates, downsampled frames, 60 spikes/level, VrApi series and screenshots"
+        }
+      ]
+    }
+  },
+  "sources": [
+    {
+      "id": "live",
+      "label": "Reviewed live-combat level evidence",
+      "path": "https://claude.ai/code/artifact/4ec51d75-9133-4124-b971-2f0f50e4c1d9",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_csv_auto('https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/live-levels.csv')",
+        "description": "Parses the self-contained live-combat artifact, redacts the device serial, and derives level utilization classes.",
+        "executed_at": "2026-07-20T19:36:03+00:00",
+        "tables_used": [
+          "live-levels.csv"
+        ],
+        "metric_definitions": [
+          "Active GameThread equals mean FEngineLoop::Tick minus the published WaitFrame average.",
+          "CPU-dominant means headset CPU utilization is at least 8 percentage points above GPU utilization after the artifact's higher-priority both-saturated bucket is excluded.",
+          "Budget miss uses the 72 Hz, 13.89 ms threshold from the source artifact."
+        ]
+      }
+    },
+    {
+      "id": "case",
+      "label": "Live-versus-frozen CPU case-study evidence",
+      "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/case-studies.csv",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_csv_auto('https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/case-studies.csv')",
+        "description": "Joins Oasis and Purification II live combat to matched-level frozen A/B controls.",
+        "executed_at": "2026-07-20T19:36:03+00:00",
+        "tables_used": [
+          "case-studies.csv"
+        ],
+        "metric_definitions": [
+          "Frozen active GT is the mean of deterministic A and B active_tick_ms values.",
+          "The frozen control disables AI and pauses or time-dilates the world while keeping the seeded population visible."
+        ]
+      }
+    },
+    {
+      "id": "frozen",
+      "label": "Deterministic frozen A/B dossier",
+      "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_csv_auto('https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/frozen-controls.csv')",
+        "description": "Reviews timer exports and A/B viewpoint metrics from the downloaded deterministic campaign.",
+        "executed_at": "2026-07-20T19:36:03+00:00",
+        "tables_used": [
+          "frozen-controls.csv"
+        ],
+        "metric_definitions": [
+          "Timer milliseconds per frame equal TotalInclusiveTime × 1000 divided by FEngineLoop::Tick count.",
+          "The control is designed for static scene and submission analysis, not live combat simulation."
+        ]
+      }
+    },
+    {
+      "id": "historical",
+      "label": "Historical live-combat report audit",
+      "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/reports/combat-2026-07-19/",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_csv_auto('https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/historical-combat.csv')",
+        "description": "Parses the earlier live-combat report and its published inclusive timer tables; raw trace links were audited separately.",
+        "executed_at": "2026-07-20T19:36:03+00:00",
+        "tables_used": [
+          "historical-combat.csv"
+        ],
+        "metric_definitions": [
+          "Historical active GT is published mean FEngineLoop::Tick minus WaitFrame pacing.",
+          "Historical component-tick milliseconds are inclusive per-frame aggregates and calls/frame is dispatch count divided by frame count.",
+          "City, Energy and Mines contain mixed same-second VrApi branches; CPU timer results remain separate from those VrApi averages."
+        ]
+      }
+    },
+    {
+      "id": "historical_quality",
+      "label": "Historical live-combat availability and duplication audit",
+      "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/historical-quality.csv",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_csv_auto('https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/historical-quality.csv')",
+        "description": "Records mixed VrApi scale-factor branches, exact duplicate event rows and the current HTTP status of raw combat trace links.",
+        "executed_at": "2026-07-20T19:36:03+00:00",
+        "tables_used": [
+          "historical-quality.csv"
+        ]
+      }
+    },
+    {
+      "id": "actions",
+      "label": "Prioritized remediation plan",
+      "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/actions.csv",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_csv_auto('https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/actions.csv')",
+        "description": "Maps measured timer families and inspected capture-commit code to scoped engineering experiments and ship gates.",
+        "executed_at": "2026-07-20T19:36:03+00:00",
+        "tables_used": [
+          "actions.csv"
+        ]
+      }
+    },
+    {
+      "id": "limits",
+      "label": "Evidence-strength and availability review",
+      "path": "https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/evidence-boundaries.csv",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_csv_auto('https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/evidence-boundaries.csv')",
+        "description": "Separates supported subsystem findings from owner-level or hitch-level claims the current exports cannot prove.",
+        "executed_at": "2026-07-20T19:36:03+00:00",
+        "tables_used": [
+          "evidence-boundaries.csv"
+        ]
+      }
+    },
+    {
+      "id": "inventory",
+      "label": "Downloaded artifact inventory",
+      "path": "https://roboquestvr-quest3-performance.elliotttate.chatgpt.site/api/downloads/rq3-86269d35efae42dcb8ab6a04/artifact_index.json",
+      "query": {
+        "engine": "duckdb",
+        "language": "sql",
+        "sql": "SELECT * FROM read_csv_auto('https://elliotttate.github.io/RoboquestVR-perf-reports/reports/cpu-deep-dive-2026-07-20/data/download-inventory.csv')",
+        "description": "Audits the complete published manifest and local extraction/verification status.",
+        "executed_at": "2026-07-20T19:36:03+00:00",
+        "tables_used": [
+          "download-inventory.csv"
+        ]
+      }
+    },
+    {
+      "id": "code",
+      "label": "RoboquestVR capture-commit source inspection",
+      "path": "https://github.com/Flat2VRStudios/RoboquestVR/tree/0246c33b0b57c8cf4f5a0e8a28800fda077ca2f2",
+      "query": {
+        "engine": "source-review",
+        "language": "sql",
+        "sql": "SELECT * FROM reviewed_document_evidence",
+        "description": "Inspects the exact frozen-capture commit and compares relevant files to the current local HEAD.",
+        "executed_at": "2026-07-20T19:36:03+00:00",
+        "tables_used": [
+          "RoboquestVR capture-commit source inspection"
+        ]
+      }
+    }
+  ]
+}
